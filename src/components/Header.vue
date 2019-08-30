@@ -1,16 +1,18 @@
 <template>
     <div class="header-wrapper">
-        <a href="javascript:void(0)" class="logo-wrap">
+        <a href="#/index" class="logo-wrap">
             <img class="logo" src="../../static/img/logo.png" alt="">
             <img class="logo-title" src="../../static/img/bgvisual.png" alt="">
         </a>
         <ul class="header-menu" @click="handleSelect">
-            <li class="menu-active" tabindex="1">
-                <router-link to="/index/task_index">集群检测</router-link>
-            </li>
-            <li>
-                <router-link to="/index/task_index">数据可视化</router-link>
-            </li>
+            <router-link to="/index" tag="li">
+                <i class="el-icon-pie-chart"></i>
+                集群检测
+            </router-link>
+            <router-link to="/data_visual" tag="li">
+                <i class="el-icon-data-analysis"></i>
+                数据可视化
+            </router-link>
         </ul>
     </div>
 </template>
@@ -41,11 +43,17 @@
         .header-menu {
             height: 100%;
             float: left;
-            margin-left: 30px;
+            margin-left: 100px;
             border: none;
             list-style: none;
 
-            li.menu-active {
+            i {
+                display: block;
+                margin: 12px 0 10px;
+                font-size: 28px;
+            }
+
+            .menu-active {
                 background-color: #f5a623;
                 color: #fff !important;
             }
@@ -54,11 +62,12 @@
                 height: 100%;
                 border: none;
                 padding: 0 20px;
-                line-height: 85px;
+                /*line-height: 85px;*/
                 color: #fff;
                 cursor: pointer;
                 float: left;
-                font-size: 14px;
+                font-size: 15px;
+                transition: all 0.3s ease;
 
                 &:hover {
                     color: #f5a623;
