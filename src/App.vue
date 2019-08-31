@@ -1,6 +1,7 @@
 <template>
     <div id="app">
         <Header></Header>
+        <router-view></router-view>
     </div>
 </template>
 
@@ -20,6 +21,10 @@
         margin: 0;
         padding: 0;
         box-sizing: border-box;
+
+        body {
+            position: relative;
+        }
 
         #app {
             font-family: 'Avenir', Helvetica, Arial, sans-serif;

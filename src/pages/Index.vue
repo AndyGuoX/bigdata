@@ -1,6 +1,6 @@
 <template>
     <div class="index-wrapper">
-        首页
+        集群检测页面
     </div>
 </template>
 

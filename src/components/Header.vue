@@ -21,9 +21,7 @@
     export default {
         name: "Header",
         data() {
-            return {
-                activeIndex: '1',
-            }
+            return {}
         },
         methods: {
             handleSelect(key, keyPath) {
@@ -62,7 +60,6 @@
                 height: 100%;
                 border: none;
                 padding: 0 20px;
-                /*line-height: 85px;*/
                 color: #fff;
                 cursor: pointer;
                 float: left;
