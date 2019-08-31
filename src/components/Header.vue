@@ -4,7 +4,7 @@
             <img class="logo" src="../../static/img/logo.png" alt="">
             <img class="logo-title" src="../../static/img/bgvisual.png" alt="">
         </a>
-        <ul class="header-menu" @click="handleSelect">
+        <ul class="header-menu">
             <router-link to="/index" tag="li">
                 <i class="el-icon-pie-chart"></i>
                 集群检测
@@ -23,11 +23,7 @@
         data() {
             return {}
         },
-        methods: {
-            handleSelect(key, keyPath) {
-                console.log(key, keyPath);
-            }
-        }
+        methods: {}
     }
 </script>
 
