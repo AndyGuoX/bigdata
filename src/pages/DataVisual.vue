@@ -26,21 +26,34 @@
                 </ul>
             </div>
         </transition>
-        <div class="charts-content-wrapper" style="overflow:auto;width:100%;height:1080px">
+        <div class="charts-content-wrapper"
+             style="overflow:auto;width:100%;height:auto;">
             <div class="charts-content"
-                 :style="`width:${chartsGlobalSetting.bgWidth};height:${chartsGlobalSetting.bgHeight};position:relative;`"
+                 :style="`width:${chartsGlobalSetting.bgWidth}px;height:${chartsGlobalSetting.bgHeight}px;position:relative;`"
                  @drop="drop"
                  @dragover="dragover">
                 <div class="charts-wrapper"
                      v-for="(item,index) in chartsList" :key="index"
-                     :style="`position: absolute;top:${item.top};left:${item.left};width:${item.width};height:${item.height};
+                     :style="`position: absolute;top:${item.top}px;left:${item.left}px;width:${item.width}px;height:${item.height}px;
                      index:${item.zIndex}`"
-                     @mousedown="mouseDown($event)"
-                     @mouseup="mouseUp($event)">
+                     @mouseover="chartsToolHeight=30"
+                     @mouseout="mouseOut">
+                    <div class="charts-tools"
+                         :style="`height:${chartsToolHeight}px;background-color:#0077aa;transition:0.3s;`">
+                        <ul>
+                            <li style="width:50%;cursor:move;font-size:14px;"
+                                @mousedown="mouseDown($event)"
+                                @mouseup="mouseUp($event)">拖动
+                            </li>
+                            <li style="width:30px;padding: 0 5px;float:right;">
+                                <i class="el-icon-delete" style="cursor:pointer"></i>
+                            </li>
+                        </ul>
+                    </div>
                     <Histogram :data="item.data"
-                               width="100%"
-                               height="100%"
-                    ></Histogram>
+                               :height="`${item.height-chartsToolHeight}px`"
+                               :width="`100%`">
+                    </Histogram>
                 </div>
             </div>
         </div>
@@ -63,9 +76,13 @@
                 currentY: 0,
                 currentDivX: 0,
                 currentDivY: 0,
+                currentCanvas: null,
+                currentCanvasDiv: null,
+                chartsToolHeight: 0,
+                mouseoutFlag: false,
                 chartsGlobalSetting: {
-                    "bgWidth": "1900px",
-                    "bgHeight": "1080px"
+                    "bgWidth": 1900,
+                    "bgHeight": 1080
                 }
             }
         },
@@ -73,6 +90,7 @@
             this.isShow = true;
             let obj = this.$refs.charts_select_header;
 
+            // 滚动页面到85px时固定图表选项行
             window.onscroll = function () {
                 let scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
                 if (scrollTop < 85) {
@@ -92,11 +110,13 @@
 
             // 绑定在可放置的元素上
             drop(event) {
+                console.log(event.path);
                 let type = event.dataTransfer.getData('type');
                 let name = event.dataTransfer.getData('name');
                 if (type === 'charts') {
                     let _getX = event.offsetX,
                         _getY = event.offsetY;
+                    console.log(_getX, _getY);
                     if (event.path[0].tagName === 'CANVAS') {
                         // 当图表生成位置与已有图表重合时，继续在此位置生成。
                         let parentDiv = event.path[4];
@@ -104,13 +124,11 @@
                         _getY += parseInt(parentDiv.style.top);
                     }
                     let chartObj = {};
-                    chartObj.width = "400px";
-                    chartObj.height = "400px";
+                    chartObj.width = 400;
+                    chartObj.height = 400;
                     // 图表不能生成在画布外
-                    _getX = _getX + chartObj.width > this.chartsGlobalSetting.bgWidth ? this.chartsGlobalSetting.bgWidth - chartObj.width : _getX;
-                    _getY = _getY + chartObj.height > this.chartsGlobalSetting.bgHeight ? this.chartsGlobalSetting.bgHeight - chartObj.height : _getY;
-                    chartObj.left = _getX + 'px';
-                    chartObj.top = _getY + 'px';
+                    chartObj.left = _getX + chartObj.width > this.chartsGlobalSetting.bgWidth ? this.chartsGlobalSetting.bgWidth - chartObj.width : _getX;
+                    chartObj.top = _getY + chartObj.height > this.chartsGlobalSetting.bgHeight ? this.chartsGlobalSetting.bgHeight - chartObj.height : _getY;
                     chartObj.zIndex = this.chartsList.length;
                     if (name === 'histogram') {
                         chartObj.data = {
@@ -137,9 +155,10 @@
 
             // 鼠标按下事件
             mouseDown(event) {
-                let DivObj = event.path[4];
-                DivObj.addEventListener("mousemove", this.mouseMove);
-                DivObj.addEventListener("mouseup", this.mouseUp);
+                this.mouseoutFlag = false;
+                let DivObj = this.currentCanvasDiv = event.path[3];
+                document.addEventListener("mousemove", this.mouseMove);
+                document.addEventListener("mouseup", this.mouseUp);
                 this.currentX = event.clientX;
                 this.currentY = event.clientY;
                 this.currentDivX = parseInt(DivObj.style.left);
@@ -148,22 +167,31 @@
 
             // 鼠标移动事件
             mouseMove(event) {
-                var DivObj = event.path[4];
                 let _X = this.currentDivX + event.clientX - this.currentX;
                 let _Y = this.currentDivY + event.clientY - this.currentY;
                 // 不允许拖拽超出画布
+                // 左边界
                 _X = _X > 0 ? _X : 0;
-                _X = _X <= parseInt(this.chartsGlobalSetting.bgWidth) - parseInt(DivObj.style.width) ? _X : parseInt(this.chartsGlobalSetting.bgWidth) - parseInt(DivObj.style.width);
+                // 右边界
+                _X = _X <= this.chartsGlobalSetting.bgWidth - parseInt(this.currentCanvasDiv.style.width) ? _X : this.chartsGlobalSetting.bgWidth - parseInt(this.currentCanvasDiv.style.width);
+                // 上边界
                 _Y = _Y > 0 ? _Y : 0;
-                _X = _X <= parseInt(this.chartsGlobalSetting.bgHeight) - parseInt(DivObj.style.height) ? _X : parseInt(this.chartsGlobalSetting.bgHeight) - parseInt(DivObj.style.height);
-                DivObj.style.left = _X + 'px';
-                DivObj.style.top = _Y + 'px';
+                // 下边界
+                _Y = _Y <= this.chartsGlobalSetting.bgHeight - parseInt(this.currentCanvasDiv.style.height) ? _Y : this.chartsGlobalSetting.bgHeight - parseInt(this.currentCanvasDiv.style.height);
+                this.currentCanvasDiv.style.left = _X + 'px';
+                this.currentCanvasDiv.style.top = _Y + 'px';
             },
 
             // 鼠标抬起事件
-            mouseUp(event) {
-                event.path[4].removeEventListener("mousemove", this.mouseMove);
-                event.path[4].removeEventListener("mouseup", this.mouseUp);
+            mouseUp() {
+                this.mouseoutFlag = true;
+                document.removeEventListener("mousemove", this.mouseMove);
+                document.removeEventListener("mouseup", this.mouseUp);
+            },
+
+            // 鼠标移除
+            mouseOut() {
+                this.chartsToolHeight = this.mouseoutFlag ? 0 : 30;
             }
         }
     }
@@ -220,6 +248,32 @@
                         &:hover {
                             box-shadow: 0 0 4px 4px rgba(255, 255, 255, 0.6);
                         }
+                    }
+                }
+            }
+        }
+
+        .charts-tools {
+            overflow: hidden;
+
+            ul {
+                list-style: none;
+                height: 100%;
+
+                &:after {
+                    content: "";
+                    display: block;
+                    clear: both;
+                }
+
+                li {
+                    float: left;
+                    text-align: center;
+                    height: 100%;
+                    line-height: 30px;
+
+                    i {
+
                     }
                 }
             }
