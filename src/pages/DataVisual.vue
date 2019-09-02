@@ -36,10 +36,10 @@
                      v-for="(item,index) in chartsList" :key="index"
                      :style="`position: absolute;top:${item.top}px;left:${item.left}px;width:${item.width}px;height:${item.height}px;
                      index:${item.zIndex}`"
-                     @mouseover="chartsToolHeight=30"
-                     @mouseout="mouseOut">
+                     @mouseover="item.chartsToolHeight=30"
+                     @mouseout="mouseOut(item)">
                     <div class="charts-tools"
-                         :style="`height:${chartsToolHeight}px;background-color:#0077aa;transition:0.3s;`">
+                         :style="`height:${item.chartsToolHeight}px;background-color:#99dfff;transition:0.3s;`">
                         <ul>
                             <li style="width:50%;cursor:move;font-size:14px;"
                                 @mousedown="mouseDown($event)"
@@ -51,7 +51,7 @@
                         </ul>
                     </div>
                     <Histogram :data="item.data"
-                               :height="`${item.height-chartsToolHeight}px`"
+                               :height="`${item.height-item.chartsToolHeight}px`"
                                :width="`100%`">
                     </Histogram>
                 </div>
@@ -78,8 +78,7 @@
                 currentDivY: 0,
                 currentCanvas: null,
                 currentCanvasDiv: null,
-                chartsToolHeight: 0,
-                mouseoutFlag: false,
+                mouseoutFlag: true,
                 chartsGlobalSetting: {
                     "bgWidth": 1900,
                     "bgHeight": 1080
@@ -110,13 +109,11 @@
 
             // 绑定在可放置的元素上
             drop(event) {
-                console.log(event.path);
                 let type = event.dataTransfer.getData('type');
                 let name = event.dataTransfer.getData('name');
                 if (type === 'charts') {
                     let _getX = event.offsetX,
                         _getY = event.offsetY;
-                    console.log(_getX, _getY);
                     if (event.path[0].tagName === 'CANVAS') {
                         // 当图表生成位置与已有图表重合时，继续在此位置生成。
                         let parentDiv = event.path[4];
@@ -126,6 +123,7 @@
                     let chartObj = {};
                     chartObj.width = 400;
                     chartObj.height = 400;
+                    chartObj.chartsToolHeight = 0;
                     // 图表不能生成在画布外
                     chartObj.left = _getX + chartObj.width > this.chartsGlobalSetting.bgWidth ? this.chartsGlobalSetting.bgWidth - chartObj.width : _getX;
                     chartObj.top = _getY + chartObj.height > this.chartsGlobalSetting.bgHeight ? this.chartsGlobalSetting.bgHeight - chartObj.height : _getY;
@@ -190,8 +188,8 @@
             },
 
             // 鼠标移除
-            mouseOut() {
-                this.chartsToolHeight = this.mouseoutFlag ? 0 : 30;
+            mouseOut(item) {
+                item.chartsToolHeight = this.mouseoutFlag ? 0 : 30;
             }
         }
     }
