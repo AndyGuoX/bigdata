@@ -5,23 +5,27 @@
                 <span>2D图表</span>
                 <ul class="charts-select-menu">
                     <li>
-                        <i data-type="charts" data-name="histogram" class="iconfont icon-charts" draggable="true"
+                        <i data-type="charts" data-name="Histogram" class="iconfont icon-charts" draggable="true"
                            @dragstart="dragstart"></i>
                     </li>
                     <li>
-                        <i class="iconfont icon-charts1" draggable="true"></i>
+                        <i data-type="charts" data-name="VeLine" class="iconfont icon-charts1" draggable="true"
+                           @dragstart="dragstart"></i>
                     </li>
                     <li>
-                        <i class="iconfont icon-fendianbaobiao" draggable="true"></i>
+                        <i data-type="charts" data-name="Pie" class="iconfont icon-fendianbaobiao"
+                           draggable="true" @dragstart="dragstart"></i>
                     </li>
                     <li>
-                        <i class="iconfont icon-addcharts-dapan" draggable="true"></i>
+                        <i data-type="charts" data-name="Gauge" class="iconfont icon-addcharts-dapan"
+                           draggable="true" @dragstart="dragstart"></i>
                     </li>
                 </ul>
                 <span>3D图表</span>
                 <ul class="charts-select-menu">
                     <li>
-                        <i class="iconfont icon-bar_d_chart" draggable="true"></i>
+                        <i data-type="charts" data-name="histogram3D" class="iconfont icon-bar_d_chart"
+                           @click="notOpen"></i>
                     </li>
                 </ul>
             </div>
@@ -46,14 +50,18 @@
                                 @mouseup="mouseUp($event)">拖动
                             </li>
                             <li style="width:30px;padding: 0 5px;float:right;">
-                                <i class="el-icon-delete" style="cursor:pointer"></i>
+                                <i class="el-icon-delete" style="cursor:pointer" @click="delChart(index)"></i>
+                            </li>
+                            <li style="width:30px;padding: 0 5px;float:right;">
+                                <i class="el-icon-edit" style="cursor:pointer" @click="changeChart(index)"></i>
                             </li>
                         </ul>
                     </div>
-                    <Histogram :data="item.data"
-                               :height="`${item.height-item.chartsToolHeight}px`"
-                               :width="`100%`">
-                    </Histogram>
+                    <div :is="item.chartName"
+                         :data="item.data"
+                         :height="`${item.height-item.chartsToolHeight}px`"
+                         :width="`100%`">
+                    </div>
                 </div>
             </div>
         </div>
@@ -62,11 +70,18 @@
 
 <script>
     import Histogram from 'v-charts/lib/histogram.common'
+    import VeLine from 'v-charts/lib/line.common'
+    import Pie from 'v-charts/lib/pie.common'
+    import Gauge from 'v-charts/lib/gauge.common'
+    import {getChartDefaultData} from "@/utils";
 
     export default {
         name: "DataVisual",
         components: {
             Histogram,
+            VeLine,
+            Pie,
+            Gauge,
         },
         data() {
             return {
@@ -128,19 +143,8 @@
                     chartObj.left = _getX + chartObj.width > this.chartsGlobalSetting.bgWidth ? this.chartsGlobalSetting.bgWidth - chartObj.width : _getX;
                     chartObj.top = _getY + chartObj.height > this.chartsGlobalSetting.bgHeight ? this.chartsGlobalSetting.bgHeight - chartObj.height : _getY;
                     chartObj.zIndex = this.chartsList.length;
-                    if (name === 'histogram') {
-                        chartObj.data = {
-                            columns: ['日期', '访问用户', '下单用户', '下单率'],
-                            rows: [
-                                {'日期': '1/1', '访问用户': 1393, '下单用户': 1093, '下单率': 0.32},
-                                {'日期': '1/2', '访问用户': 3530, '下单用户': 3230, '下单率': 0.26},
-                                {'日期': '1/3', '访问用户': 2923, '下单用户': 2623, '下单率': 0.76},
-                                {'日期': '1/4', '访问用户': 1723, '下单用户': 1423, '下单率': 0.49},
-                                {'日期': '1/5', '访问用户': 3792, '下单用户': 3492, '下单率': 0.323},
-                                {'日期': '1/6', '访问用户': 4593, '下单用户': 4293, '下单率': 0.78}
-                            ]
-                        };
-                    }
+                    chartObj.data = getChartDefaultData(name);
+                    chartObj.chartName = name;
                     this.chartsList.push(chartObj);
                 }
             },
@@ -190,6 +194,28 @@
             // 鼠标移除
             mouseOut(item) {
                 item.chartsToolHeight = this.mouseoutFlag ? 0 : 30;
+            },
+
+            // 删除图表
+            delChart(index) {
+                this.chartsList.splice(index, 1);
+            },
+
+            // 修改图表数据
+            changeChart(index) {
+                console.log(index);
+                this.$message({
+                    message: "此功能暂未开放！",
+                    type: "warning"
+                })
+            },
+
+            // 暂未开放提醒
+            notOpen() {
+                this.$message({
+                    message: "3D图表暂不支持！",
+                    type: "warning"
+                })
             }
         }
     }
@@ -253,6 +279,10 @@
 
         .charts-tools {
             overflow: hidden;
+            -moz-user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
 
             ul {
                 list-style: none;
