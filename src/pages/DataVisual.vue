@@ -40,8 +40,8 @@
                      v-for="(item,index) in chartsList" :key="index"
                      :style="`position: absolute;top:${item.top}px;left:${item.left}px;width:${item.width}px;height:${item.height}px;
                      index:${item.zIndex}`"
-                     @mouseover="item.chartsToolHeight=30"
-                     @mouseout="mouseOut(item)">
+                     @mouseenter="mouseenter(item)"
+                     @mouseleave="mouseleave(item)">
                     <div class="charts-tools"
                          :style="`height:${item.chartsToolHeight}px;background-color:#99dfff;transition:0.3s;`">
                         <ul>
@@ -191,8 +191,13 @@
                 document.removeEventListener("mouseup", this.mouseUp);
             },
 
+            // 鼠标悬停
+            mouseenter(item) {
+                item.chartsToolHeight = 30;
+            },
+
             // 鼠标移除
-            mouseOut(item) {
+            mouseleave(item) {
                 item.chartsToolHeight = this.mouseoutFlag ? 0 : 30;
             },
 
