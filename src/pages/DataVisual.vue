@@ -1,39 +1,54 @@
 <template>
     <div class="data-visual">
-        <transition name="el-zoom-in-top">
-            <div ref="charts_select_header" class="charts-select-header" v-show="isShow">
-                <span>2D图表</span>
-                <ul class="charts-select-menu">
-                    <li>
-                        <i data-type="charts" data-name="Histogram" class="iconfont icon-charts" draggable="true"
-                           @dragstart="dragstart"></i>
-                    </li>
-                    <li>
-                        <i data-type="charts" data-name="VeLine" class="iconfont icon-charts1" draggable="true"
-                           @dragstart="dragstart"></i>
-                    </li>
-                    <li>
-                        <i data-type="charts" data-name="Pie" class="iconfont icon-fendianbaobiao"
-                           draggable="true" @dragstart="dragstart"></i>
-                    </li>
-                    <li>
-                        <i data-type="charts" data-name="Gauge" class="iconfont icon-addcharts-dapan"
-                           draggable="true" @dragstart="dragstart"></i>
-                    </li>
-                </ul>
-                <span>3D图表</span>
-                <ul class="charts-select-menu">
-                    <li>
-                        <i data-type="charts" data-name="Histogram3D" class="iconfont icon-bar_d_chart"
-                           draggable="true" @dragstart="dragstart"></i>
-                    </li>
-                </ul>
-            </div>
-        </transition>
+        <div ref="charts_select_header" class="charts-select-header" v-show="isShow">
+            <span>2D图表</span>
+            <ul class="charts-select-menu">
+                <li>
+                    <i data-type="charts" data-name="Histogram" class="iconfont icon-charts" draggable="true"
+                       @dragstart="dragstart"></i>
+                </li>
+                <li>
+                    <i data-type="charts" data-name="VeLine" class="iconfont icon-charts1" draggable="true"
+                       @dragstart="dragstart"></i>
+                </li>
+                <li>
+                    <i data-type="charts" data-name="Pie" class="iconfont icon-fendianbaobiao"
+                       draggable="true" @dragstart="dragstart"></i>
+                </li>
+                <li>
+                    <i data-type="charts" data-name="Gauge" class="iconfont icon-addcharts-dapan"
+                       draggable="true" @dragstart="dragstart"></i>
+                </li>
+            </ul>
+            <span>3D图表</span>
+            <ul class="charts-select-menu">
+                <li>
+                    <i data-type="charts" data-name="Histogram3D" class="iconfont icon-bar_d_chart"
+                       draggable="true" @dragstart="dragstart"></i>
+                </li>
+            </ul>
+        </div>
         <div class="charts-content-wrapper"
              style="overflow:auto;width:100%;height:auto;">
+            <div id="canvas_bg"
+                 ref="canvWrap"
+                 :style="`opacity: .4;width:${chartsGlobalSetting.bgWidth}px;
+                 height:${chartsGlobalSetting.bgHeight}px;z-index:-1;`">
+                <canvas ref="canv" width="100%" height="100%"></canvas>
+            </div>
+            <div class="earth-rotate"
+                 :style="`width:${chartsGlobalSetting.bgWidth}px;
+                 height:${chartsGlobalSetting.bgHeight}px;z-index:-2;`">
+                <div class="map">
+                    <div class="map1"><img alt="" src="../../static/img/lbx.png"></div>
+                    <div class="map2"><img alt="" src="../../static/img/jt.png"></div>
+                    <div class="map3"><img alt="" src="../../static/img/map.png"></div>
+                </div>
+            </div>
             <div class="charts-content"
-                 :style="`width:${chartsGlobalSetting.bgWidth}px;height:${chartsGlobalSetting.bgHeight}px;position:relative;`"
+                 :style="`width:${chartsGlobalSetting.bgWidth}px;
+                 height:${chartsGlobalSetting.bgHeight}px;
+                 position:relative;z-index:0;`"
                  @drop="drop"
                  @dragover="dragover">
                 <div class="charts-wrapper"
@@ -75,6 +90,7 @@
     import Gauge from 'v-charts/lib/gauge.common'
     import Histogram3D from "@/components/charts/Histogram3D";
     import {getChartDefaultData} from "@/utils";
+    import {operateBdBg} from "../../static/js/bigdataBg"
 
     export default {
         name: "DataVisual",
@@ -110,11 +126,14 @@
             window.onscroll = function () {
                 let scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
                 if (scrollTop < 85) {
-                    obj.style.position = 'relative';
+                    obj.style.position = 'absolute';
                 } else {
                     obj.style.position = 'fixed';
                 }
             }
+        },
+        updated() {
+            operateBdBg(this.$refs.canv, this.$refs.canvWrap);
         },
         methods: {
             // 拖拽事件开始
@@ -223,8 +242,101 @@
 <style scoped lang="scss">
     @import '../../static/lib/font_jiygtfou2p/iconfont.css';
 
+    @font-face {
+        font-family: 'hyz';
+        src: url('../../static/lib/HanYiRuiZhiJian/HYRuiZhiJ-2.ttf');
+    }
+
+    @keyframes myfirst2 {
+        from {
+            transform: rotate(0deg);
+        }
+        to {
+            transform: rotate(359deg);
+        }
+    }
+
+    @keyframes myfirst {
+        from {
+            transform: rotate(0deg);
+        }
+        to {
+            transform: rotate(-359deg);
+        }
+    }
+
     .data-visual {
         width: 100%;
+        padding-top: 65px;
+        position: relative;
+        overflow: hidden;
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+
+        .charts-content-wrapper {
+            position: relative;
+
+            #canvas_bg, .earth-rotate {
+                position: absolute;
+                left: 0;
+                top: 0;
+            }
+
+            .earth-rotate {
+                background: url("../../static/img/bg.png") no-repeat top center;
+                background-size: cover;
+
+                .map {
+                    position: absolute;
+                    width: 560px;
+                    height: 560px;
+                    left: 50%;
+                    top: 50%;
+                    transform: translate(-50%, -50%);
+                    overflow: hidden;
+                }
+
+                .map1, .map2, .map3 {
+                    position: absolute;
+                    opacity: .5;
+                    width: 100%;
+                    height: 100%;
+                }
+
+                .map1 {
+                    z-index: 2;
+                    animation: myfirst2 15s infinite linear;
+                }
+
+                .map2 {
+                    z-index: 3;
+                    opacity: 0.2;
+                    animation: myfirst 10s infinite linear;
+                }
+
+                .map3 {
+                    z-index: 1;
+                }
+
+                .map img {
+                    border: none;
+                    width: 100%;
+                    height: 100%;
+                }
+
+                div.map3 img, div.map2 img {
+                    display: block;
+                    position: absolute;
+                    width: 80%;
+                    height: 80%;
+                    left: 50%;
+                    top: 50%;
+                    transform: translate(-50%, -50%);
+                }
+            }
+        }
 
         .charts-select-header {
             width: 100%;
@@ -234,8 +346,9 @@
             padding: 0 20px;
             line-height: 65px;
             color: #fff;
-            position: relative;
+            position: absolute;
             top: 0;
+            left: 0;
             z-index: 100;
 
             span {
@@ -277,11 +390,6 @@
         }
 
         .charts-tools {
-            overflow: hidden;
-            -moz-user-select: none;
-            -webkit-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
 
             ul {
                 list-style: none;
