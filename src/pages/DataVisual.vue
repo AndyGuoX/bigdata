@@ -24,8 +24,8 @@
                 <span>3D图表</span>
                 <ul class="charts-select-menu">
                     <li>
-                        <i data-type="charts" data-name="histogram3D" class="iconfont icon-bar_d_chart"
-                           @click="notOpen"></i>
+                        <i data-type="charts" data-name="Histogram3D" class="iconfont icon-bar_d_chart"
+                           draggable="true" @dragstart="dragstart"></i>
                     </li>
                 </ul>
             </div>
@@ -73,6 +73,7 @@
     import VeLine from 'v-charts/lib/line.common'
     import Pie from 'v-charts/lib/pie.common'
     import Gauge from 'v-charts/lib/gauge.common'
+    import Histogram3D from "@/components/charts/Histogram3D";
     import {getChartDefaultData} from "@/utils";
 
     export default {
@@ -82,6 +83,7 @@
             VeLine,
             Pie,
             Gauge,
+            Histogram3D,
         },
         data() {
             return {
@@ -214,14 +216,6 @@
                     type: "warning"
                 })
             },
-
-            // 暂未开放提醒
-            notOpen() {
-                this.$message({
-                    message: "3D图表暂不支持！",
-                    type: "warning"
-                })
-            }
         }
     }
 </script>
