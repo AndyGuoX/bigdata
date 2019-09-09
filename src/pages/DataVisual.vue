@@ -33,12 +33,12 @@
             <div id="canvas_bg"
                  ref="canvWrap"
                  :style="`opacity: .4;width:${chartsGlobalSetting.bgWidth}px;
-                 height:${chartsGlobalSetting.bgHeight}px;z-index:-1;`">
+                 height:${chartsGlobalSetting.bgHeight}px;z-index:1;`">
                 <canvas ref="canv" width="100%" height="100%"></canvas>
             </div>
             <div class="earth-rotate"
                  :style="`width:${chartsGlobalSetting.bgWidth}px;
-                 height:${chartsGlobalSetting.bgHeight}px;z-index:-2;`">
+                 height:${chartsGlobalSetting.bgHeight}px;z-index:0;`">
                 <div class="map">
                     <div class="map1"><img alt="" src="../../static/img/lbx.png"></div>
                     <div class="map2"><img alt="" src="../../static/img/jt.png"></div>
@@ -48,7 +48,7 @@
             <div class="charts-content"
                  :style="`width:${chartsGlobalSetting.bgWidth}px;
                  height:${chartsGlobalSetting.bgHeight}px;
-                 position:relative;z-index:0;`"
+                 position:relative;z-index:2;`"
                  @drop="drop"
                  @dragover="dragover">
                 <div class="charts-wrapper"
@@ -58,7 +58,8 @@
                      @mouseenter="mouseenter(item)"
                      @mouseleave="mouseleave(item)">
                     <div class="charts-tools"
-                         :style="`height:${item.chartsToolHeight}px;background-color:#99dfff;transition:0.3s;`">
+                         :style="`height:${item.chartsToolHeight}px;background-color:#99dfff;transition:0.3s;
+                         overflow:hidden;`">
                         <ul>
                             <li style="width:50%;cursor:move;font-size:14px;"
                                 @mousedown="mouseDown($event)"
@@ -133,7 +134,8 @@
             }
         },
         updated() {
-            operateBdBg(this.$refs.canv, this.$refs.canvWrap);
+            // Todo 数据更新bug
+            // operateBdBg(this.$refs.canv, this.$refs.canvWrap);
         },
         methods: {
             // 拖拽事件开始
@@ -270,6 +272,7 @@
         padding-top: 65px;
         position: relative;
         overflow: hidden;
+        background-color: #2b3843;
         -moz-user-select: none;
         -webkit-user-select: none;
         -ms-user-select: none;
