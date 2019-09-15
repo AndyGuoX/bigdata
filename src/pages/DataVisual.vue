@@ -39,6 +39,10 @@
       <div class="earth-rotate"
            :style="`width:${chartsGlobalSetting.bgWidth}px;
                  height:${chartsGlobalSetting.bgHeight}px;z-index:0;`">
+        <div class="title">
+          <p class="p1">大数据可视化分析</p>
+          <p class="p2">Big data visualization analysis</p>
+        </div>
         <div class="map">
           <div class="map1"><img alt="" src="../../static/img/lbx.png"></div>
           <div class="map2"><img alt="" src="../../static/img/jt.png"></div>
@@ -76,6 +80,7 @@
           </div>
           <div :is="item.chartName"
                :data="item.data"
+               :extend="item.extend"
                :height="`${item.height-item.chartsToolHeight}px`"
                :width="`100%`">
           </div>
@@ -169,6 +174,10 @@
             : _getY
           chartObj.zIndex = this.chartsList.length
           chartObj.data = getChartDefaultData(name)
+          // chartObj.extend = getChartDefaultOption(name)
+          chartObj.extend = {
+
+          }
           chartObj.chartName = name
           this.chartsList.push(chartObj)
         }
@@ -300,6 +309,25 @@
       .earth-rotate {
         background: url("../../static/img/bg.png") no-repeat top center;
         background-size: cover;
+
+        .title {
+          width: 20%;
+          height: 40px;
+          position: absolute;
+          top: 20px;
+          left: 50%;
+          transform: translateX(-50%);
+          font-family: 'hyz', serif;
+          color: #fff;
+          line-height: 40px;
+          text-align: center;
+          text-shadow: 0 0 15px #59FFF4;
+          font-size: 40px;
+
+          .p2 {
+            font-size: 20px;
+          }
+        }
 
         .map {
           position: absolute;
