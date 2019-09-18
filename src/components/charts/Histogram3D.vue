@@ -1,5 +1,5 @@
 <template>
-  <div class="histogram3D" ref="histogram3D"></div>
+  <div class="histogram3D" ref="histogram3D" :style="`height:${height};width:${width}`"></div>
 </template>
 
 <script>
@@ -8,9 +8,24 @@
 
   export default {
     name: "Histogram3D",
-    props: ["data"],
+    data() {
+      return {
+        myChart: null,
+      }
+    },
+    props: ["data", "width", "height"],
     watch: {
       data() {
+      },
+      width() {
+        this.$nextTick(function () {
+          this.myChart.resize()
+        })
+      },
+      height() {
+        this.$nextTick(function () {
+          this.myChart.resize()
+        })
       }
     },
     mounted() {
@@ -66,8 +81,8 @@
         }]
       }
 
-      let myChart = echarts.init(this.$refs.histogram3D)
-      myChart.setOption(option)
+      this.myChart = echarts.init(this.$refs.histogram3D)
+      this.myChart.setOption(option)
     }
   }
 </script>

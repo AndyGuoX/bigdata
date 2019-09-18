@@ -16,7 +16,7 @@
              draggable="true" @dragstart="dragstart"></i>
         </li>
         <li>
-          <i data-type="charts" data-name="Gauge" class="iconfont icon-addcharts-dapan"
+          <i data-type="charts" data-name="Radar" class="iconfont icon-radar"
              draggable="true" @dragstart="dragstart"></i>
         </li>
       </ul>
@@ -34,7 +34,7 @@
            ref="canvWrap"
            :style="`opacity:.4;width:${chartsGlobalSetting.bgWidth}px;
                  height:${chartsGlobalSetting.bgHeight}px;z-index:1;`">
-        <canvas ref="canv" width="100%" height="100%"></canvas>
+        <canvas ref="canv" width="100%" height="100%" style="opacity:.5"></canvas>
       </div>
       <div class="earth-rotate"
            :style="`width:${chartsGlobalSetting.bgWidth}px;
@@ -63,6 +63,18 @@
                      index:${item.zIndex}`"
              @mouseenter="mouseenter(item)"
              @mouseleave="mouseleave(item)">
+          <div class="left-border" id="left" ref="left" :style="`height:${item.height}px;left:0;top:0;`"
+               @mousedown="c_mouseDown"></div>
+          <div class="top-border" id="top" ref="top" :style="`width:${item.width}px;left:0;top:0;`"
+               @mousedown="c_mouseDown"></div>
+          <div class="right-border" id="right" ref="right" :style="`height:${item.height}px;right:0;top:0;`"
+               @mousedown="c_mouseDown"></div>
+          <div class="bottom-border" id="bottom" ref="bottom" :style="`width:${item.width}px;left:0;bottom:0;`"
+               @mousedown="c_mouseDown"></div>
+          <span class="top-left border-span"></span>
+          <span class="top-right border-span"></span>
+          <span class="bottom-left border-span"></span>
+          <span class="bottom-right border-span"></span>
           <div class="charts-tools"
                :style="`height:${item.chartsToolHeight}px;background-color:#99dfff;transition:0.3s;
                          overflow:hidden;`">
@@ -80,9 +92,8 @@
           </div>
           <div :is="item.chartName"
                :data="item.data"
-               :extend="item.extend"
                :height="`${item.height-item.chartsToolHeight}px`"
-               :width="`100%`">
+               :width="`${item.width}px`">
           </div>
         </div>
       </div>
@@ -91,10 +102,10 @@
 </template>
 
 <script>
-  import Histogram from 'v-charts/lib/histogram.common'
-  import VeLine from 'v-charts/lib/line.common'
-  import Pie from 'v-charts/lib/pie.common'
-  import Gauge from 'v-charts/lib/gauge.common'
+  import Histogram from '@/components/charts/Histogram'
+  import VeLine from '@/components/charts/VeLine'
+  import Pie from '@/components/charts/Pie'
+  import Radar from '@/components/charts/Radar'
   import Histogram3D from "@/components/charts/Histogram3D"
   import {getChartDefaultData} from "@/utils"
   import {operateBdBg} from "../../static/js/bigdataBg"
@@ -106,7 +117,7 @@
       Histogram,
       VeLine,
       Pie,
-      Gauge,
+      Radar,
       Histogram3D,
     },
     data() {
@@ -116,12 +127,17 @@
         currentY: 0, // 鼠标按下时记录当前纵坐标
         currentDivX: 0, // 鼠标按下时要移动的div的横坐标
         currentDivY: 0, // 鼠标按下时要移动的div的纵坐标
+        currentDivWidth: 0, // 鼠标按下时要变化大小div的宽度
+        currentDivHeight: 0, // 鼠标按下时要变化大小div的高度
         currentCanvasDiv: null, // 鼠标按下时存放包含echarts图表父元素
+        currentBorder: null, // 鼠标按下时存放移动的边界元素
         currentItem: null, // 当鼠标按下时存放当前的图表数据
         mouseoutFlag: true, // 在鼠标移动过程中即使鼠标脱离了div，工具栏也不会消失
         chartsGlobalSetting: { // 整个图表的画布的全局参数
           "bgWidth": 1900,
-          "bgHeight": 1080
+          "bgHeight": 1080,
+          "minChartWidth": 300,
+          "minChartHeight": 200,
         }
       }
     },
@@ -164,20 +180,16 @@
           }
           let chartObj = {}
           chartObj.id = generateUUID()
-          chartObj.width = 400
-          chartObj.height = 400
+          chartObj.width = 480
+          chartObj.height = 280
           chartObj.chartsToolHeight = 0
           // 图表不能生成在画布外
           chartObj.left = _getX + chartObj.width > this.chartsGlobalSetting.bgWidth ? this.chartsGlobalSetting.bgWidth - chartObj.width
             : _getX
-          chartObj.top = _getY + chartObj.height > this.chartsGlobalSetting.bgHeight ? this.chartsGlobalSetting.bgHeight - chartObj.height
+          chartObj.top = _getY + chartObj.height > this.chartsGlobalSetting.bgHeight ? this.chartsGlobalSetting.bgHeight - chartObj.height - 2
             : _getY
           chartObj.zIndex = this.chartsList.length
           chartObj.data = getChartDefaultData(name)
-          // chartObj.extend = getChartDefaultOption(name)
-          chartObj.extend = {
-
-          }
           chartObj.chartName = name
           this.chartsList.push(chartObj)
         }
@@ -189,21 +201,21 @@
         event.preventDefault()
       },
 
-      // 鼠标按下事件
+      // div移动鼠标按下事件
       mouseDown(event, item) {
         this.mouseoutFlag = false
         this.currentItem = item
         const path = event.path || (event.composedPath && event.composedPath())
-        let DivObj = this.currentCanvasDiv = path[3]
+        this.currentCanvasDiv = path[3]
         document.addEventListener("mousemove", this.mouseMove)
         document.addEventListener("mouseup", this.mouseUp)
         this.currentX = event.clientX // 记录当前鼠标横坐标
         this.currentY = event.clientY // 记录当前鼠标纵坐标
-        this.currentDivX = parseInt(DivObj.style.left)
-        this.currentDivY = parseInt(DivObj.style.top)
+        this.currentDivX = parseInt(this.currentCanvasDiv.style.left)
+        this.currentDivY = parseInt(this.currentCanvasDiv.style.top)
       },
 
-      // 鼠标移动事件
+      // div移动鼠标移动事件
       mouseMove(event) {
         let _X = this.currentDivX + event.clientX - this.currentX
         let _Y = this.currentDivY + event.clientY - this.currentY
@@ -217,14 +229,13 @@
         _Y = _Y > 0 ? _Y : 0
         // 下边界
         _Y = _Y <= this.chartsGlobalSetting.bgHeight - parseInt(this.currentCanvasDiv.style.height) ? _Y
-          : this.chartsGlobalSetting.bgHeight - parseInt(this.currentCanvasDiv.style.height)
+          : this.chartsGlobalSetting.bgHeight - parseInt(this.currentCanvasDiv.style.height) - 2
         this.currentCanvasDiv.style.left = _X + 'px'
         this.currentCanvasDiv.style.top = _Y + 'px'
       },
 
-      // 鼠标抬起事件
+      // div移动鼠标抬起事件
       mouseUp(event) {
-        console.log(event)
         const path = event.path || (event.composedPath && event.composedPath())
         if (path[0].tagName !== 'LI') {
           this.currentItem.chartsToolHeight = 0
@@ -244,6 +255,83 @@
         item.chartsToolHeight = this.mouseoutFlag ? 0 : 30
       },
 
+      // div大小变化鼠标按下事件
+      c_mouseDown(event) {
+        this.currentX = event.clientX
+        this.currentY = event.clientY
+        const path = event.path || (event.composedPath && event.composedPath())
+        this.currentCanvasDiv = path[1]
+        this.currentBorder = path[0].id
+        this.currentDivWidth = parseInt(this.currentCanvasDiv.style.width)
+        this.currentDivHeight = parseInt(this.currentCanvasDiv.style.height)
+        this.currentDivX = parseInt(this.currentCanvasDiv.style.left)
+        this.currentDivY = parseInt(this.currentCanvasDiv.style.top)
+        document.addEventListener("mousemove", eval('this.' + this.currentBorder + 'Move'))
+        document.addEventListener("mouseup", this.c_mouseUp)
+      },
+
+      // div大小变化鼠标抬起事件
+      c_mouseUp() {
+        document.removeEventListener("mousemove", eval('this.' + this.currentBorder + 'Move'))
+        document.removeEventListener("mouseup", this.c_mouseUp)
+      },
+
+      // 拖动左边界
+      leftMove(event) {
+        let u_top = document.getElementById('top')
+        let u_bottom = document.getElementById('bottom')
+        let _X = event.clientX
+        let _width = this.currentDivWidth + this.currentX - _X
+        if (_width <= this.chartsGlobalSetting.minChartWidth) {
+          u_bottom.style.width = u_top.style.width = this.currentCanvasDiv.style.width = this.chartsGlobalSetting.minChartWidth + 'px'
+          this.currentCanvasDiv.style.left = this.currentDivWidth + this.currentDivX - this.chartsGlobalSetting.minChartWidth + 'px'
+        } else {
+          u_bottom.style.width = u_top.style.width = this.currentCanvasDiv.style.width = _width + 'px'
+          this.currentCanvasDiv.style.left = this.currentDivX + _X - this.currentX + 'px'
+        }
+      },
+
+      // 拖动右边界
+      rightMove(event) {
+        let u_top = document.getElementById('top')
+        let u_bottom = document.getElementById('bottom')
+        let _X = event.clientX
+        let _width = this.currentDivWidth + _X - this.currentX
+        if (_width <= this.chartsGlobalSetting.minChartWidth) {
+          u_bottom.style.width = u_top.style.width = this.currentCanvasDiv.style.width = this.chartsGlobalSetting.minChartWidth + 'px'
+        } else {
+          u_bottom.style.width = u_top.style.width = this.currentCanvasDiv.style.width = _width + 'px'
+        }
+      },
+
+      // 拖动下边界
+      bottomMove(event) {
+        let u_right = document.getElementById('right')
+        let u_left = document.getElementById('left')
+        let _Y = event.clientY
+        let _height = this.currentDivHeight + _Y - this.currentY
+        if (_height <= this.chartsGlobalSetting.minChartHeight) {
+          u_left.style.height = u_right.style.height = this.currentCanvasDiv.style.height = this.chartsGlobalSetting.minChartHeight + 'px'
+        } else {
+          u_left.style.height = u_right.style.height = this.currentCanvasDiv.style.height = _height + 'px'
+        }
+      },
+
+      // 拖动上边界
+      topMove(event) {
+        let u_right = document.getElementById('right')
+        let u_left = document.getElementById('left')
+        let _Y = event.clientY
+        let _height = this.currentDivHeight + this.currentY - _Y
+        if (_height <= this.chartsGlobalSetting.minChartHeight) {
+          u_left.style.height = u_right.style.height = this.currentCanvasDiv.style.height = this.chartsGlobalSetting.minChartHeight + 'px'
+          this.currentCanvasDiv.style.top = this.currentDivHeight + this.currentDivY - this.chartsGlobalSetting.minChartHeight + 'px'
+        } else {
+          u_left.style.height = u_right.style.height = this.currentCanvasDiv.style.height = _height + 'px'
+          this.currentCanvasDiv.style.top = this.currentDivY + _Y - this.currentY + 'px'
+        }
+      },
+
       // 删除图表
       delChart(index) {
         this.chartsList.splice(index, 1)
@@ -261,7 +349,7 @@
 </script>
 
 <style scoped lang="scss">
-  @import '../../static/lib/font_jiygtfou2p/iconfont.css';
+  @import '../../static/lib/font_hwd63mppy8o/iconfont.css';
 
   @font-face {
     font-family: 'hyz';
@@ -299,6 +387,83 @@
 
     .charts-content-wrapper {
       position: relative;
+
+      .charts-wrapper {
+        border: 1px solid rgba(25, 186, 139, .17);
+        background: rgba(255, 255, 255, .04) url("../../static/img/box.png") no-repeat;
+        background-size: cover;
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+
+        .left-border {
+          width: 4px;
+          background-color: transparent;
+          position: absolute;
+          cursor: w-resize;
+          z-index: 100;
+        }
+
+        .top-border {
+          height: 4px;
+          background-color: transparent;
+          position: absolute;
+          cursor: n-resize;
+          z-index: 100;
+        }
+
+        .right-border {
+          width: 4px;
+          background-color: transparent;
+          position: absolute;
+          cursor: e-resize;
+          z-index: 100;
+        }
+
+        .bottom-border {
+          height: 4px;
+          background-color: transparent;
+          position: absolute;
+          cursor: s-resize;
+          z-index: 100;
+        }
+
+        .border-span {
+          display: block;
+          position: absolute;
+          width: 20px;
+          height: 20px;
+        }
+
+        span.top-left {
+          top: 0;
+          left: 0;
+          border-top: 2px solid #00c0ff;
+          border-left: 2px solid #00c0ff;
+        }
+
+        span.top-right {
+          top: 0;
+          right: 0;
+          border-top: 2px solid #00c0ff;
+          border-right: 2px solid #00c0ff;
+        }
+
+        span.bottom-left {
+          bottom: 0;
+          left: 0;
+          border-bottom: 2px solid #00c0ff;
+          border-left: 2px solid #00c0ff;
+        }
+
+        span.bottom-right {
+          bottom: 0;
+          right: 0;
+          border-bottom: 2px solid #00c0ff;
+          border-right: 2px solid #00c0ff;
+        }
+      }
 
       #canvas_bg, .earth-rotate {
         position: absolute;
@@ -431,6 +596,8 @@
     }
 
     .charts-tools {
+
+      padding-right: 20px;
 
       ul {
         list-style: none;
