@@ -64,13 +64,13 @@
              @mouseenter="mouseenter(item)"
              @mouseleave="mouseleave(item)">
           <div class="left-border" id="left" ref="left" :style="`height:${item.height}px;left:0;top:0;`"
-               @mousedown="c_mouseDown"></div>
+               @mousedown="c_mouseDown($event,item)"></div>
           <div class="top-border" id="top" ref="top" :style="`width:${item.width}px;left:0;top:0;`"
-               @mousedown="c_mouseDown"></div>
+               @mousedown="c_mouseDown($event,item)"></div>
           <div class="right-border" id="right" ref="right" :style="`height:${item.height}px;right:0;top:0;`"
-               @mousedown="c_mouseDown"></div>
+               @mousedown="c_mouseDown($event,item)"></div>
           <div class="bottom-border" id="bottom" ref="bottom" :style="`width:${item.width}px;left:0;bottom:0;`"
-               @mousedown="c_mouseDown"></div>
+               @mousedown="c_mouseDown($event,item)"></div>
           <span class="top-left border-span"></span>
           <span class="top-right border-span"></span>
           <span class="bottom-left border-span"></span>
@@ -256,7 +256,8 @@
       },
 
       // div大小变化鼠标按下事件
-      c_mouseDown(event) {
+      c_mouseDown(event, item) {
+        this.currentItem = item
         this.currentX = event.clientX
         this.currentY = event.clientY
         const path = event.path || (event.composedPath && event.composedPath())
@@ -283,11 +284,13 @@
         let _X = event.clientX
         let _width = this.currentDivWidth + this.currentX - _X
         if (_width <= this.chartsGlobalSetting.minChartWidth) {
-          u_bottom.style.width = u_top.style.width = this.currentCanvasDiv.style.width = this.chartsGlobalSetting.minChartWidth + 'px'
-          this.currentCanvasDiv.style.left = this.currentDivWidth + this.currentDivX - this.chartsGlobalSetting.minChartWidth + 'px'
+          this.currentItem.width = this.chartsGlobalSetting.minChartWidth
+          u_bottom.style.width = u_top.style.width = this.chartsGlobalSetting.minChartWidth + 'px'
+          this.currentItem.left = this.currentDivWidth + this.currentDivX - this.chartsGlobalSetting.minChartWidth
         } else {
-          u_bottom.style.width = u_top.style.width = this.currentCanvasDiv.style.width = _width + 'px'
-          this.currentCanvasDiv.style.left = this.currentDivX + _X - this.currentX + 'px'
+          this.currentItem.width = _width
+          u_bottom.style.width = u_top.style.width = _width + 'px'
+          this.currentItem.left = this.currentDivX + _X - this.currentX
         }
       },
 
@@ -298,9 +301,11 @@
         let _X = event.clientX
         let _width = this.currentDivWidth + _X - this.currentX
         if (_width <= this.chartsGlobalSetting.minChartWidth) {
-          u_bottom.style.width = u_top.style.width = this.currentCanvasDiv.style.width = this.chartsGlobalSetting.minChartWidth + 'px'
+          u_bottom.style.width = u_top.style.width = this.chartsGlobalSetting.minChartWidth + 'px'
+          this.currentItem.width = this.chartsGlobalSetting.minChartWidth
         } else {
-          u_bottom.style.width = u_top.style.width = this.currentCanvasDiv.style.width = _width + 'px'
+          u_bottom.style.width = u_top.style.width = _width + 'px'
+          this.currentItem.width = _width
         }
       },
 
@@ -311,9 +316,11 @@
         let _Y = event.clientY
         let _height = this.currentDivHeight + _Y - this.currentY
         if (_height <= this.chartsGlobalSetting.minChartHeight) {
-          u_left.style.height = u_right.style.height = this.currentCanvasDiv.style.height = this.chartsGlobalSetting.minChartHeight + 'px'
+          this.currentItem.height = this.chartsGlobalSetting.minChartHeight
+          u_left.style.height = u_right.style.height = this.chartsGlobalSetting.minChartHeight + 'px'
         } else {
-          u_left.style.height = u_right.style.height = this.currentCanvasDiv.style.height = _height + 'px'
+          u_left.style.height = u_right.style.height = _height + 'px'
+          this.currentItem.height = _height
         }
       },
 
@@ -324,11 +331,13 @@
         let _Y = event.clientY
         let _height = this.currentDivHeight + this.currentY - _Y
         if (_height <= this.chartsGlobalSetting.minChartHeight) {
-          u_left.style.height = u_right.style.height = this.currentCanvasDiv.style.height = this.chartsGlobalSetting.minChartHeight + 'px'
-          this.currentCanvasDiv.style.top = this.currentDivHeight + this.currentDivY - this.chartsGlobalSetting.minChartHeight + 'px'
+          this.currentItem.height = this.chartsGlobalSetting.minChartHeight
+          u_left.style.height = u_right.style.height = this.chartsGlobalSetting.minChartHeight + 'px'
+          this.currentItem.top = this.currentDivHeight + this.currentDivY - this.chartsGlobalSetting.minChartHeight
         } else {
-          u_left.style.height = u_right.style.height = this.currentCanvasDiv.style.height = _height + 'px'
-          this.currentCanvasDiv.style.top = this.currentDivY + _Y - this.currentY + 'px'
+          this.currentItem.height = _height
+          u_left.style.height = u_right.style.height = _height + 'px'
+          this.currentItem.top = this.currentDivY + _Y - this.currentY
         }
       },
 
