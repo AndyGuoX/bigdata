@@ -27,8 +27,12 @@
              draggable="true" @dragstart="dragstart"></i>
         </li>
       </ul>
+      <div class="save-charts">
+        <el-button type="success" round @click="saveCharts">保存图表</el-button>
+      </div>
     </div>
     <div class="charts-content-wrapper"
+         ref="chartsContent"
          style="overflow:auto;width:100%;height:auto;">
       <div id="canvas_bg"
            ref="canvWrap"
@@ -258,8 +262,8 @@
       // div大小变化鼠标按下事件
       c_mouseDown(event, item) {
         this.currentItem = item
-        this.currentX = event.clientX
-        this.currentY = event.clientY
+        this.currentX = event.pageX
+        this.currentY = event.pageY
         const path = event.path || (event.composedPath && event.composedPath())
         this.currentCanvasDiv = path[1]
         this.currentBorder = path[0].id
@@ -281,7 +285,10 @@
       leftMove(event) {
         let u_top = document.getElementById('top')
         let u_bottom = document.getElementById('bottom')
-        let _X = event.clientX
+        let _X = event.pageX
+        if (_X <= 0) {
+          _X = 4
+        }
         let _width = this.currentDivWidth + this.currentX - _X
         if (_width <= this.chartsGlobalSetting.minChartWidth) {
           this.currentItem.width = this.chartsGlobalSetting.minChartWidth
@@ -298,7 +305,10 @@
       rightMove(event) {
         let u_top = document.getElementById('top')
         let u_bottom = document.getElementById('bottom')
-        let _X = event.clientX
+        let _X = event.pageX
+        if (_X >= this.chartsGlobalSetting.bgWidth - 4) {
+          _X = this.chartsGlobalSetting.bgWidth - 4
+        }
         let _width = this.currentDivWidth + _X - this.currentX
         if (_width <= this.chartsGlobalSetting.minChartWidth) {
           u_bottom.style.width = u_top.style.width = this.chartsGlobalSetting.minChartWidth + 'px'
@@ -313,7 +323,10 @@
       bottomMove(event) {
         let u_right = document.getElementById('right')
         let u_left = document.getElementById('left')
-        let _Y = event.clientY
+        let _Y = event.pageY
+        if (_Y >= this.chartsGlobalSetting.bgHeight + 146) {
+          _Y = this.chartsGlobalSetting.bgHeight + 146
+        }
         let _height = this.currentDivHeight + _Y - this.currentY
         if (_height <= this.chartsGlobalSetting.minChartHeight) {
           this.currentItem.height = this.chartsGlobalSetting.minChartHeight
@@ -328,7 +341,10 @@
       topMove(event) {
         let u_right = document.getElementById('right')
         let u_left = document.getElementById('left')
-        let _Y = event.clientY
+        let _Y = event.pageY
+        if (_Y <= 154) {
+          _Y = 154
+        }
         let _height = this.currentDivHeight + this.currentY - _Y
         if (_height <= this.chartsGlobalSetting.minChartHeight) {
           this.currentItem.height = this.chartsGlobalSetting.minChartHeight
@@ -353,6 +369,23 @@
           type: "warning"
         })
       },
+
+      // 保存图表为html页面
+      saveCharts() {
+        let template = this.$refs.chartsContent.innerHTML
+        let html = `<!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="utf-8">
+                    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+                    <title>大数据可视化</title>
+                </head>
+                <body>
+                    ${template}
+                </body>
+                </html>`
+        console.log(html)
+      }
     }
   }
 </script>
@@ -601,6 +634,10 @@
             }
           }
         }
+      }
+
+      .save-charts {
+        float: right;
       }
     }
 

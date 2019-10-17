@@ -40,14 +40,26 @@
         },
         xAxis3D: {
           type: 'category',
-          data: this.data.xAxis3D
+          data: this.data.xAxis3D,
+          axisLabel: {show: true, textStyle: {color: "rgba(255,255,255,.6)", fontSize: "12",},},
+          axisTick: {show: false,},
+          axisLine: {show: true, lineStyle: {color: "rgba(255,255,255,.1	)", width: 1, type: "solid"},},
+          splitLine: {lineStyle: {color: "rgba(255,255,255,.1)",}}
         },
         yAxis3D: {
           type: 'category',
-          data: this.data.yAxis3D
+          data: this.data.yAxis3D,
+          axisLabel: {show: true, textStyle: {color: "rgba(255,255,255,.6)", fontSize: "12",},},
+          axisTick: {show: false,},
+          axisLine: {show: true, lineStyle: {color: "rgba(255,255,255,.1	)", width: 1, type: "solid"},},
+          splitLine: {lineStyle: {color: "rgba(255,255,255,.1)",}}
         },
         zAxis3D: {
-          type: 'value'
+          type: 'value',
+          axisLabel: {show: true, textStyle: {color: "rgba(255,255,255,.6)", fontSize: "12",},},
+          axisTick: {show: false,},
+          axisLine: {show: true, lineStyle: {color: "rgba(255,255,255,.1	)", width: 1, type: "solid"},},
+          splitLine: {lineStyle: {color: "rgba(255,255,255,.1)",}}
         },
         grid3D: {
           boxWidth: 200,
