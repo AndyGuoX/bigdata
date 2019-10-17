@@ -1,11 +1,11 @@
 <template>
   <div class="header-wrapper">
-    <a href="#/index" class="logo-wrap">
+    <a href="#/cluster" class="logo-wrap">
       <img class="logo" src="../../static/img/logo.png" alt="">
       <img class="logo-title" src="../../static/img/bgvisual.png" alt="">
     </a>
     <ul class="header-menu">
-      <router-link to="/index" tag="li">
+      <router-link to="/cluster" tag="li">
         <i class="el-icon-pie-chart"></i>
         集群检测
       </router-link>

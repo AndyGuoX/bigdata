@@ -3,6 +3,7 @@ import Router from 'vue-router' // 路由
 import NotFound from '@/pages/NotFound' // 404
 import Index from '@/pages/Index' // 主页
 import DataVisual from "@/pages/DataVisual" // 数据可视化页面
+import ClusterDetection from "../pages/ClusterDetection" // 集群检测页面
 
 Vue.use(Router)
 
@@ -11,15 +12,20 @@ const router = new Router({
   routes: [
     {
       path: '/',
-      redirect: {path: '/index'}
-    },
-    {
-      path: '/index',
       component: Index,
-    },
-    {
-      path: '/data_visual',
-      component: DataVisual
+      redirect: {
+        path: '/cluster'
+      },
+      children: [
+        {
+          path: '/data_visual',
+          component: DataVisual
+        },
+        {
+          path: '/cluster',
+          component: ClusterDetection
+        }
+      ]
     },
     {
       path: '/404',

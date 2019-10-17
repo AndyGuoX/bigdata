@@ -10,8 +10,7 @@ require('./db') // 引入数据库连接配置
 
 //然后require()的是用户路由目录的模块。这些模块用来处理特定
 //的“路由”（URL路径）。可以通过添加新文件来扩展骨架应用，
-var indexRouter = require('./routes/index')
-var usersRouter = require('./routes/users')
+var apiRouter = require('./routes/api')
 
 //用导入的express模块来创建app对象
 var app = express()
@@ -32,12 +31,19 @@ app.use(cookieParser())
 //项目根目录下所有静态文件托管至/public目录
 app.use(express.static(path.join(__dirname, 'public')))
 
+//设置跨域访问
+app.all('*', function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "X-Requested-With");
+  res.header("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");
+  res.header("X-Powered-By",' 3.2.1')
+  res.header("Content-Type", "application/json;charset=utf-8");
+  next();
+});
+
 //所有中间件都已设置完毕，现在把（之前导入的）路由处理器添加到请求处理链中。
 //从而为网站的不同部分定义具体的路由：
-app.use('/', indexRouter)
-app.use('/users', usersRouter)
-//注：这些路径（‘/’和‘users’）将作为导入路由的前缀。如果导入的模块
-//users在/profile定义了路由，则可以在/users/profile访问该路由
+app.use('/api', apiRouter)
 
 // 最后一个中间件为错误和 HTTP 404 响应添加处理方法。
 // 捕获 404 并抛给错误处理器
