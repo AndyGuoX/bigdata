@@ -50,6 +50,7 @@
           // 登录api
           login(loginJson).then(res => {
             if (res.loginResult) {
+              window.localStorage.setItem('bigdata_jwt_token', res.token);
               this.$router.push({
                 path: `/cluster`
               })

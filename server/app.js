@@ -6,6 +6,7 @@ var path = require('path')//用来解析文件和目录的核心node库
 var cookieParser = require('cookie-parser')
 var logger = require('morgan')
 var ejs = require('ejs')
+const jwtAuth = require('./constant/jwt');
 
 require('./db') // 引入数据库连接配置
 
@@ -41,6 +42,9 @@ app.all('*', function(req, res, next) {
   res.header("Content-Type", "application/json;charset=utf-8");
   next();
 });
+
+// 所有请求过来都会进行身份验证
+app.use(jwtAuth);
 
 //所有中间件都已设置完毕，现在把（之前导入的）路由处理器添加到请求处理链中。
 //从而为网站的不同部分定义具体的路由：

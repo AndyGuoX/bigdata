@@ -114,7 +114,7 @@
   import {getChartDefaultData} from "@/utils"
   import {operateBdBg} from "../../static/js/bigdataBg"
   import {generateUUID} from "@/utils"
-  import axios from 'axios'
+  import {getUserInfo} from "../request/api"
 
   export default {
     name: "DataVisual",
@@ -373,10 +373,7 @@
 
       // 保存图表为html页面
       saveCharts() {
-        axios({
-          url: "http://localhost:3000/api/login",
-          method: "get",
-        }).then(res => {
+        getUserInfo().then(res => {
           console.log(res)
         })
       }

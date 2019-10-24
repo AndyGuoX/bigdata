@@ -8,9 +8,6 @@ let loadingInstance = null     // 加载全局的loading
 const instance = axios.create({    //创建axios实例，在这里可以设置请求的默认配置
   timeout: 2000,
   // baseURL: process.env.NODE_ENV === 'production' ? '' : '/api',   //根据自己配置的反向代理去设置不同环境的baeUrl
-  // headers: {
-  //   token: sessionStorage.getItem('token') || ''
-  // }
 })
 // 文档中的统一设置post请求头。
 instance.defaults.headers.post['Content-Type'] = 'application/json'
@@ -32,6 +29,18 @@ instance.interceptors.request.use(config => {
     text: '拼命加载中...',
     background: "transparent"
   })
+  const bigdata_jwt_token = window.localStorage.getItem('bigdata_jwt_token');
+  if (bigdata_jwt_token) {
+    /*
+      此处有坑，在此记录
+      request.headers['Authorization']
+      必须通过此种形式设置Authorization,否则后端即使收到字段也会出现问题，返回401
+      - request.headers.Authorization或request.headers.authorization可以设置成功，
+      浏览器查看也没有任何问题，但是在后端会报401并且后端一律只能拿到小写的，
+      也就是res.headers.authorization，后端用大写获取会报undefined
+    */
+    config.headers['Authorization'] = `Bearer ${bigdata_jwt_token}`;
+  }
   // 在这里：可以根据业务需求可以在发送请求之前做些什么
   // if (config.url.includes('pur/contract/export')) {
   //   config.headers['responseType'] = 'blob'
@@ -68,6 +77,7 @@ instance.interceptors.response.use(response => {
       type: 'error'
     })
     if (error.response.status === 401) {    // token或者登陆失效情况下跳转到登录页面，根据实际情况，在这里可以根据不同的响应错误结果，做对应的事。这里我以401判断为例
+      window.localStorage.removeItem('bigdata_jwt_token');
       router.push({
         path: `/login`
       })
