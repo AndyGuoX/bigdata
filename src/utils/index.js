@@ -1,6 +1,6 @@
 /* created by andyguo */
 
-
+// 获取图表的默认数据
 export function getChartDefaultData(chartName) {
   let data = {}
   switch (chartName) {
@@ -120,3 +120,4 @@ export function generateUUID() {
     return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16)
   })
 }
+

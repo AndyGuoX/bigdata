@@ -48,9 +48,9 @@
           <p class="p2">Big data visualization analysis</p>
         </div>
         <div class="map">
-          <div class="map1"><img alt="" src="../../static/img/lbx.png"></div>
-          <div class="map2"><img alt="" src="../../static/img/jt.png"></div>
-          <div class="map3"><img alt="" src="../../static/img/map.png"></div>
+          <div class="map1"><img alt="" src="../../static/img/bgvisual/lbx.png"></div>
+          <div class="map2"><img alt="" src="../../static/img/bgvisual/jt.png"></div>
+          <div class="map3"><img alt="" src="../../static/img/bgvisual/map.png"></div>
         </div>
       </div>
       <div class="charts-content"
@@ -426,7 +426,7 @@
 
       .charts-wrapper {
         border: 1px solid rgba(25, 186, 139, .17);
-        background: rgba(255, 255, 255, .04) url("../../static/img/box.png") no-repeat;
+        background: rgba(255, 255, 255, .04) url("../../static/img/bgvisual/box.png") no-repeat;
         background-size: cover;
         position: relative;
         width: 100%;
@@ -508,7 +508,7 @@
       }
 
       .earth-rotate {
-        background: url("../../static/img/bg.png") no-repeat top center;
+        background: url("../../static/img/bgvisual/bg.png") no-repeat top center;
         background-size: cover;
 
         .title {

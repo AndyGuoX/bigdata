@@ -1,6 +1,7 @@
 //导入了一些使用的node库
 var createError = require('http-errors')
 var express = require('express')
+var bodyParser = require('body-parser') // 解析用req.body获取的post参数
 var path = require('path')//用来解析文件和目录的核心node库
 var cookieParser = require('cookie-parser')
 var logger = require('morgan')
@@ -24,8 +25,8 @@ app.set('view engine', 'html')
 
 //下一组app.use()调用将中间件库添加进请求处理链。
 app.use(logger('dev'))
-app.use(express.json())
-app.use(express.urlencoded({extended: false}))
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({extended: false}))
 app.use(cookieParser())
 //除了之前导入的第三方库之外，我们还是用express.static中间件将
 //项目根目录下所有静态文件托管至/public目录
@@ -45,15 +46,14 @@ app.all('*', function(req, res, next) {
 //从而为网站的不同部分定义具体的路由：
 app.use('/api', apiRouter)
 
-// 最后一个中间件为错误和 HTTP 404 响应添加处理方法。
-// 捕获 404 并抛给错误处理器
+// 拦截器
 app.use((req, res, next) => {
   next(createError(404))
 })
 
 // error handler
 // 错误处理器
-app.use((err, req, res, next) => {
+app.use((err, req, res) => {
   // set locals, only providing error in development
   // 设置 locals，只在开发环境提供错误信息
   res.locals.message = err.message
