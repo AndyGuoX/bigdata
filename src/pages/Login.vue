@@ -49,6 +49,7 @@
 
           // 登录api
           login(loginJson).then(res => {
+            console.log(res)
             if (res.loginResult) {
               window.localStorage.setItem('bigdata_jwt_token', res.token);
               this.$router.push({
@@ -56,7 +57,7 @@
               })
             } else {
               this.$message({
-                message: res.errorMessage,
+                message: res.message,
                 type: 'error'
               })
             }

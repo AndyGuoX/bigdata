@@ -2,6 +2,8 @@
 const mongoose = require('mongoose') // 引入mongoose
 //连接到bigdata数据库
 const mongoDB = 'mongodb://localhost:27017/bigdata'
+// 让 mongoose 使用全局 Promise 库
+mongoose.Promise = global.Promise;
 mongoose.connect(mongoDB, {useNewUrlParser: true}, function (err) {
   if (err) {
     console.log('Connection Error:' + err)
