@@ -5,6 +5,9 @@ const usersSchema = mongoose.Schema({
   name: String, // name 的形式为String
   age: Number, // age 的形式为int
   addr: String, // addr 的形式为String
+  userName: String,
+  password: String,
+  roles: Array
 }, {collection: 'users'})
 
 module.exports = mongoose.model('users', usersSchema)

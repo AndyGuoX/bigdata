@@ -2,6 +2,8 @@ import axios from 'axios'
 // eslint-disable-next-line no-unused-vars
 import {Loading, Message} from 'element-ui'    // 这里使用elementUI的组件来给提示
 import router from '@/router'
+import store from "@/store"
+import {getToken} from "@/utils/auth"
 
 let loadingInstance = null     // 加载全局的loading
 
@@ -29,7 +31,7 @@ instance.interceptors.request.use(config => {
     text: '拼命加载中...',
     background: "transparent"
   })
-  const bigdata_jwt_token = window.localStorage.getItem('bigdata_jwt_token');
+  const bigdata_jwt_token = getToken()
   if (bigdata_jwt_token) {
     /*
       此处有坑，在此记录
@@ -39,7 +41,7 @@ instance.interceptors.request.use(config => {
       浏览器查看也没有任何问题，但是在后端会报401并且后端一律只能拿到小写的，
       也就是res.headers.authorization，后端用大写获取会报undefined
     */
-    config.headers['Authorization'] = `Bearer ${bigdata_jwt_token}`;
+    config.headers['Authorization'] = `Bearer ${bigdata_jwt_token}`
   }
   // 在这里：可以根据业务需求可以在发送请求之前做些什么
   // if (config.url.includes('pur/contract/export')) {
@@ -77,9 +79,10 @@ instance.interceptors.response.use(response => {
       type: 'error'
     })
     if (error.response.status === 401) {    // token或者登陆失效情况下跳转到登录页面，根据实际情况，在这里可以根据不同的响应错误结果，做对应的事。这里我以401判断为例
-      window.localStorage.removeItem('bigdata_jwt_token');
-      router.push({
-        path: `/login`
+      store.dispatch('user/resetToken').then(() => {
+        router.push({
+          path: `/login`
+        })
       })
     }
     return Promise.reject(error)

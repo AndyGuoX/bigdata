@@ -1,3 +1,10 @@
+'use strict'
+// const path = require('path')
+
+// function resolve(dir) {
+//   return path.join(__dirname, dir)
+// }
+
 // vue.http.js 配置说明
 module.exports = {
   // 将部署应用程序的基本URL

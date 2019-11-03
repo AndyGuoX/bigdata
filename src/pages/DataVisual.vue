@@ -114,7 +114,6 @@
   import {getChartDefaultData} from "@/utils"
   import {operateBdBg} from "../../static/js/bigdataBg"
   import {generateUUID} from "@/utils"
-  import {getUserInfo} from "../request/api"
 
   export default {
     name: "DataVisual",
@@ -371,10 +370,11 @@
         })
       },
 
-      // 保存图表为html页面
+      // 保存图表
       saveCharts() {
-        getUserInfo().then(res => {
-          console.log(res)
+        this.$message({
+          message: "该功能正在开发！",
+          type: "warning"
         })
       }
     }

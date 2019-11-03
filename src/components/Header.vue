@@ -1,6 +1,6 @@
 <template>
   <div class="header-wrapper">
-    <a href="#/cluster" class="logo-wrap">
+    <a href="/cluster" class="logo-wrap">
       <img class="logo" src="../../static/img/logo.png" alt="">
       <img class="logo-title" src="../../static/img/bgvisual.png" alt="">
     </a>

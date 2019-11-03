@@ -1,49 +1,71 @@
 import Vue from 'vue'
 import Router from 'vue-router' // 路由
-import NotFound from '@/pages/NotFound' // 404
-import Index from '@/pages/Index' // 主页
-import DataVisual from "@/pages/DataVisual" // 数据可视化页面
-import ClusterDetection from "../pages/ClusterDetection" // 集群检测页面
-import Login from "../pages/Login" // 登录页面
 
 Vue.use(Router)
 
-const router = new Router({
-  linkActiveClass: 'menu-active',
-  mode: 'history',
-  routes: [
-    {
-      path: '/login',
-      component: Login,
+export const constantRoutes = [
+  {
+    path: '/login',
+    name: 'login',
+    meta: {title: '用户登录'},
+    component: () => import("@/pages/Login"),
+  },
+  {
+    path: '/404',
+    name: 'notFound',
+    meta: {title: '404-error'},
+    component: () => import("@/pages/NotFound"),
+    hidden: true
+  },
+
+]
+
+/**
+ * asyncRoutes 异步路由
+ * the routes that need to be dynamically loaded based on user roles 根据用户角色权限动态改变用户可访问的路由
+ */
+
+export const asyncRoutes = [
+  {
+    path: '/',
+    component: () => import("@/pages/Index"),
+    redirect: {
+      path: '/cluster'
     },
-    {
-      path: '/',
-      component: Index,
-      redirect: {
-        path: '/cluster'
+    children: [
+      {
+        path: '/data_visual',
+        name: 'dataVisual',
+        meta: {title: '大数据可视化工具', roles: ['admin', 'general']},
+        component: () => import("@/pages/DataVisual"),
       },
-      children: [
-        {
-          path: '/data_visual',
-          component: DataVisual
-        },
-        {
-          path: '/cluster',
-          component: ClusterDetection
-        }
-      ]
-    },
-    {
-      path: '/404',
-      component: NotFound,
-      hidden: true
-    },
-    {
-      path: '*',
-      hidden: true,
-      redirect: {path: '/404'}
-    },
-  ]
+      {
+        path: '/cluster',
+        name: 'cluster',
+        meta: {title: 'hadoop集群检测', roles: ['admin', 'general']},
+        component: () => import("@/pages/ClusterDetection"),
+      }
+    ]
+  },
+  {
+    path: '*',
+    hidden: true,
+    redirect: {path: '/404'}
+  },
+]
+
+const createRouter = () => new Router({
+  linkActiveClass: 'menu-active',
+  mode: 'history', // require service support
+  // scrollBehavior: () => ({ y: 0 }),
+  routes: constantRoutes
 })
+
+const router = createRouter()
+
+export function resetRouter() {
+  const newRouter = createRouter()
+  router.matcher = newRouter.matcher // reset router
+}
 
 export default router

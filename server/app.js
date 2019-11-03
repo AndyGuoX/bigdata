@@ -6,7 +6,7 @@ var path = require('path')//用来解析文件和目录的核心node库
 var cookieParser = require('cookie-parser')
 var logger = require('morgan')
 var ejs = require('ejs')
-const jwtAuth = require('./constant/jwt');
+const jwtAuth = require('./token/jwt');
 
 require('./db') // 引入数据库连接配置
 

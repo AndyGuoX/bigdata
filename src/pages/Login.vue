@@ -27,7 +27,6 @@
 
 <script>
   import md5 from 'js-md5'
-  import {login} from "../request/api"
 
   export default {
     name: "Login",
@@ -48,12 +47,10 @@
           }
 
           // 登录api
-          login(loginJson).then(res => {
-            console.log(res)
+          this.$store.dispatch('user/login', loginJson).then(res => {
             if (res.loginResult) {
-              window.localStorage.setItem('bigdata_jwt_token', res.token);
               this.$router.push({
-                path: `/cluster`
+                name: 'cluster'
               })
             } else {
               this.$message({
