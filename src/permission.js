@@ -62,6 +62,7 @@ router.beforeEach(async (to, from, next) => {
     } else {
       // 其他需要权限访问的页面一律重定向到登录页面
       next(`/login`)
+      NProgress.done()
     }
   }
 })
