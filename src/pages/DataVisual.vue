@@ -111,7 +111,7 @@
   import Pie from '@/components/charts/Pie'
   import Radar from '@/components/charts/Radar'
   import Histogram3D from "@/components/charts/Histogram3D"
-  import {getChartDefaultData} from "@/utils"
+  import {getChartDefaultData} from "@/request/api/charts"
   import {operateBdBg} from "../../static/js/bigdataBg"
   import {generateUUID} from "@/utils"
 
@@ -137,25 +137,27 @@
         currentBorder: null, // 鼠标按下时存放移动的边界元素
         currentItem: null, // 当鼠标按下时存放当前的图表数据
         mouseoutFlag: true, // 在鼠标移动过程中即使鼠标脱离了div，工具栏也不会消失
-        chartsGlobalSetting: { // 整个图表的画布的全局参数
+        chartsGlobalSetting: { // 整个图表的全局参数
           "bgWidth": 1900,
           "bgHeight": 1080,
           "minChartWidth": 300,
           "minChartHeight": 200,
+          "chartWidth": 480,
+          "chartHeight": 280
         }
       }
     },
     mounted() {
-      let obj = this.$refs.charts_select_header
-      // 滚动页面到85px时固定图表选项行
-      window.onscroll = function () {
-        let scrollTop = document.documentElement.scrollTop || document.body.scrollTop
-        if (scrollTop < 85) {
-          obj.style.position = 'absolute'
-        } else {
-          obj.style.position = 'fixed'
-        }
-      }
+      // let obj = this.$refs.charts_select_header
+      // // 滚动页面到85px时固定图表选项行
+      // window.onscroll = function () {
+      //   let scrollTop = document.documentElement.scrollTop || document.body.scrollTop
+      //   if (scrollTop < 85) {
+      //     obj.style.position = 'absolute'
+      //   } else {
+      //     obj.style.position = 'fixed'
+      //   }
+      // }
       this.$nextTick(function () { // 绘制背景的canvas
         operateBdBg(this.$refs.canv, this.$refs.canvWrap)
       })
@@ -182,20 +184,23 @@
             _getX += parseInt(parentDiv.style.left)
             _getY += parseInt(parentDiv.style.top)
           }
-          let chartObj = {}
-          chartObj.id = generateUUID()
-          chartObj.width = 480
-          chartObj.height = 280
-          chartObj.chartsToolHeight = 0
-          // 图表不能生成在画布外
-          chartObj.left = _getX + chartObj.width > this.chartsGlobalSetting.bgWidth ? this.chartsGlobalSetting.bgWidth - chartObj.width
-            : _getX
-          chartObj.top = _getY + chartObj.height > this.chartsGlobalSetting.bgHeight ? this.chartsGlobalSetting.bgHeight - chartObj.height - 2
-            : _getY
-          chartObj.zIndex = this.chartsList.length
-          chartObj.data = getChartDefaultData(name)
-          chartObj.chartName = name
-          this.chartsList.push(chartObj)
+          // 获取图表的默认数据
+          getChartDefaultData({"chartsName": name}).then(res => {
+            let chartObj = {}
+            chartObj.id = generateUUID()
+            chartObj.width = this.chartsGlobalSetting.chartWidth
+            chartObj.height = this.chartsGlobalSetting.chartHeight
+            chartObj.chartsToolHeight = 0
+            // 图表不能生成在画布外
+            chartObj.left = _getX + chartObj.width > this.chartsGlobalSetting.bgWidth ? this.chartsGlobalSetting.bgWidth - chartObj.width
+              : _getX
+            chartObj.top = _getY + chartObj.height > this.chartsGlobalSetting.bgHeight ? this.chartsGlobalSetting.bgHeight - chartObj.height - 2
+              : _getY
+            chartObj.zIndex = this.chartsList.length
+            chartObj.chartName = name
+            chartObj.data = res.chartsData
+            this.chartsList.push(chartObj)
+          })
         }
       },
 
@@ -372,10 +377,11 @@
 
       // 保存图表
       saveCharts() {
-        this.$message({
-          message: "该功能正在开发！",
-          type: "warning"
-        })
+        let visualData = {
+          "globalSetting": this.chartsGlobalSetting,
+          "chartsData": this.chartsList,
+        }
+        console.log(visualData)
       }
     }
   }
@@ -585,7 +591,7 @@
       padding: 0 20px;
       line-height: 65px;
       color: #fff;
-      position: absolute;
+      position: fixed;
       top: 0;
       left: 0;
       z-index: 100;

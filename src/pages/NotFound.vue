@@ -19,7 +19,7 @@
 <style scoped lang="scss">
   .error-container {
     background-color: #ececec;
-    position: absolute;
+    position: fixed;
     width: 100%;
     height: 100%;
 

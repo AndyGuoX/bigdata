@@ -9,12 +9,13 @@
         <i class="el-icon-pie-chart"></i>
         集群检测
       </router-link>
-      <router-link to="/data_visual" tag="li">
+      <router-link to="/visual_list" tag="li">
         <i class="el-icon-data-analysis"></i>
         数据可视化
       </router-link>
     </ul>
     <div class="header-userInfo">
+      <span class="user-name">{{user.name}}</span>
       <el-dropdown trigger="click">
         <div class="el-dropdown-link">
           <el-avatar :size="40" :src="userImg"></el-avatar>
@@ -35,13 +36,23 @@
 
 <script>
   import userImg from '@/../static/img/login/avtar.png'
+  import {mapGetters} from 'vuex'
 
   export default {
     name: "Header",
     data() {
       return {
         userImg,
+        user: {},
       }
+    },
+    computed: {
+      ...mapGetters([
+        'name'
+      ])
+    },
+    created() {
+      this.getUser()
     },
     methods: {
       loginOut() {
@@ -50,6 +61,11 @@
             name: 'login'
           })
         })
+      },
+      getUser() {
+        this.user = {
+          name: this.name,
+        }
       }
     }
   }
@@ -107,15 +123,19 @@
     .header-userInfo {
       height: 100%;
       float: right;
-      margin-right: 100px;
+      margin-right: 30px;
       border: none;
       list-style: none;
-      position: relative;
+      padding-top: 20px;
+
+      .user-name {
+        display: inline-block;
+        margin-right: 16px;
+        color: #fff;
+        font-size: 18px;
+      }
 
       .el-dropdown {
-        position: relative;
-        top: 50%;
-        transform: translateY(-50%);
 
         .el-dropdown-link {
           cursor: pointer;

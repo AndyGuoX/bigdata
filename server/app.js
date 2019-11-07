@@ -1,18 +1,19 @@
 //导入了一些使用的node库
-var createError = require('http-errors')
 var express = require('express')
 var bodyParser = require('body-parser') // 解析用req.body获取的post参数
 var path = require('path')//用来解析文件和目录的核心node库
 var cookieParser = require('cookie-parser')
 var logger = require('morgan')
 var ejs = require('ejs')
-const jwtAuth = require('./token/jwt');
+const jwtAuth = require('./token/jwt')
+const permission = require('./middlewares/permission')
 
 require('./db') // 引入数据库连接配置
 
 //然后require()的是用户路由目录的模块。这些模块用来处理特定
 //的“路由”（URL路径）。可以通过添加新文件来扩展骨架应用，
-var apiRouter = require('./routes/api')
+var usersApiRouter = require('./routes/user')
+var chartsApiRouter = require('./routes/charts')
 
 //用导入的express模块来创建app对象
 var app = express()
@@ -34,40 +35,32 @@ app.use(cookieParser())
 app.use(express.static(path.join(__dirname, 'public')))
 
 //设置跨域访问
-app.all('*', function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "X-Requested-With");
-  res.header("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");
-  res.header("X-Powered-By",' 3.2.1')
-  res.header("Content-Type", "application/json;charset=utf-8");
-  next();
-});
+app.all('*', function (req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*")
+  res.header("Access-Control-Allow-Headers", "X-Requested-With")
+  res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS")
+  res.header("X-Powered-By", ' 3.2.1')
+  res.header("Content-Type", "application/json;charset=utf-8")
+  next()
+})
 
 // 所有请求过来都会进行身份验证
-app.use(jwtAuth);
+app.use(jwtAuth)
+
+// 验证用户访问的api是否有权限
+app.use(permission)
 
 //所有中间件都已设置完毕，现在把（之前导入的）路由处理器添加到请求处理链中。
 //从而为网站的不同部分定义具体的路由：
-app.use('/api', apiRouter)
+app.use('/api', usersApiRouter)
+app.use('/api', chartsApiRouter)
 
 // 拦截器
-app.use((req, res, next) => {
-  next(createError(404))
-})
-
-// error handler
-// 错误处理器
-app.use((err, req, res) => {
-  // set locals, only providing error in development
-  // 设置 locals，只在开发环境提供错误信息
-  res.locals.message = err.message
-  res.locals.error = req.app.get('env') === 'development' ? err : {}
-
-  // render the error page
-  res.status(err.status || 500)
-  // 渲染出错页面
-  res.render('error.html')
-})
+// eslint-disable-next-line no-unused-vars
+// app.use((req, res, next) => {
+//   console.log("拦截")
+//   next()
+// })
 
 //Express 应用对象（app）现已完成配置。最后一步是将其添加到
 // exports 模块（使它可以通过 /bin/www 导入）。

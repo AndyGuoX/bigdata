@@ -34,18 +34,24 @@ export const asyncRoutes = [
     },
     children: [
       {
-        path: '/data_visual',
-        name: 'dataVisual',
-        meta: {title: '大数据可视化工具', roles: ['admin', 'general']},
-        component: () => import("@/pages/DataVisual"),
+        path: '/visual_list',
+        name: 'visualList',
+        meta: {title: '数据可视化列表'},
+        component: () => import("@/pages/VisualList"),
       },
       {
         path: '/cluster',
         name: 'cluster',
-        meta: {title: 'hadoop集群检测', roles: ['admin', 'general']},
+        meta: {title: 'hadoop集群检测', roles: ['admin']},
         component: () => import("@/pages/ClusterDetection"),
       }
     ]
+  },
+  {
+    path: '/data_visual',
+    name: 'dataVisual',
+    meta: {title: '大数据可视化工具'},
+    component: () => import("@/pages/DataVisual"),
   },
   {
     path: '*',
