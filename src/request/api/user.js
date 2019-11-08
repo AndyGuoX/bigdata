@@ -6,4 +6,6 @@ export const getUserInfo = (params) => get('/api/getUserInfo', params)
 
 export const logout = () => post('/api/logout')
 
+export const getVisualList = () => get('api/getVisualList')
+
 

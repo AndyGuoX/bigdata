@@ -15,9 +15,22 @@
 </template>
 
 <script>
+  import {getVisualList} from "@/request/api/user"
+
   export default {
     name: "VisualList",
+    data() {
+      return {}
+    },
+    mounted() {
+      this.getVisualList()
+    },
     methods: {
+      getVisualList() {
+        getVisualList().then(res => {
+          console.log(res)
+        })
+      },
       createNewPage() {
         const routerUrl = this.$router.resolve({
           name: 'dataVisual'
