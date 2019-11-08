@@ -1,6 +1,9 @@
 <template>
   <div class="data-visual">
     <div ref="charts_select_header" class="charts-select-header">
+      <div class="back-btn">
+        <el-button type="primary" icon="el-icon-arrow-left" @click="backToVisList">返回列表</el-button>
+      </div>
       <span>2D图表</span>
       <ul class="charts-select-menu">
         <li>
@@ -36,13 +39,13 @@
          style="overflow:auto;width:100%;height:auto;">
       <div id="canvas_bg"
            ref="canvWrap"
-           :style="`opacity:.4;width:${chartsGlobalSetting.bgWidth}px;
-                 height:${chartsGlobalSetting.bgHeight}px;z-index:1;`">
+           :style="`opacity:.4;width:${visualData.chartsGlobalSetting.bgWidth}px;
+                 height:${visualData.chartsGlobalSetting.bgHeight}px;z-index:1;`">
         <canvas ref="canv" width="100%" height="100%" style="opacity:.5"></canvas>
       </div>
       <div class="earth-rotate"
-           :style="`width:${chartsGlobalSetting.bgWidth}px;
-                 height:${chartsGlobalSetting.bgHeight}px;z-index:0;`">
+           :style="`width:${visualData.chartsGlobalSetting.bgWidth}px;
+                 height:${visualData.chartsGlobalSetting.bgHeight}px;z-index:0;`">
         <div class="title">
           <p class="p1">大数据可视化分析</p>
           <p class="p2">Big data visualization analysis</p>
@@ -54,13 +57,13 @@
         </div>
       </div>
       <div class="charts-content"
-           :style="`width:${chartsGlobalSetting.bgWidth}px;
-                 height:${chartsGlobalSetting.bgHeight}px;
+           :style="`width:${visualData.chartsGlobalSetting.bgWidth}px;
+                 height:${visualData.chartsGlobalSetting.bgHeight}px;
                  position:relative;z-index:2;`"
            @drop="drop"
            @dragover="dragover">
         <div class="charts-wrapper"
-             v-for="(item,index) in chartsList" :key="item.id"
+             v-for="(item,index) in visualData.chartsList" :key="item.id"
              :style="`position: absolute;top:${item.top}px;
                      left:${item.left}px;
                      width:${item.width}px;height:${item.height}px;
@@ -112,6 +115,7 @@
   import Radar from '@/components/charts/Radar'
   import Histogram3D from "@/components/charts/Histogram3D"
   import {getChartDefaultData} from "@/request/api/charts"
+  import {saveVisualPage} from "@/request/api/user"
   import {operateBdBg} from "../../static/js/bigdataBg"
   import {generateUUID} from "@/utils"
 
@@ -126,7 +130,7 @@
     },
     data() {
       return {
-        chartsList: [], // 存放图表数据
+
         currentX: 0, // 鼠标按下时记录当前横坐标
         currentY: 0, // 鼠标按下时记录当前纵坐标
         currentDivX: 0, // 鼠标按下时要移动的div的横坐标
@@ -137,13 +141,18 @@
         currentBorder: null, // 鼠标按下时存放移动的边界元素
         currentItem: null, // 当鼠标按下时存放当前的图表数据
         mouseoutFlag: true, // 在鼠标移动过程中即使鼠标脱离了div，工具栏也不会消失
-        chartsGlobalSetting: { // 整个图表的全局参数
-          "bgWidth": 1900,
-          "bgHeight": 1080,
-          "minChartWidth": 300,
-          "minChartHeight": 200,
-          "chartWidth": 480,
-          "chartHeight": 280
+        visualData: {
+          visualPageId: "vpi" + generateUUID(),
+          visualPageName: "大数据可视化分析",
+          chartsList: [], // 存放图表数据
+          chartsGlobalSetting: { // 整个图表的全局参数
+            "bgWidth": 1900,
+            "bgHeight": 1080,
+            "minChartWidth": 300,
+            "minChartHeight": 200,
+            "chartWidth": 480,
+            "chartHeight": 280
+          },
         }
       }
     },
@@ -187,19 +196,20 @@
           // 获取图表的默认数据
           getChartDefaultData({"chartsName": name}).then(res => {
             let chartObj = {}
-            chartObj.id = generateUUID()
-            chartObj.width = this.chartsGlobalSetting.chartWidth
-            chartObj.height = this.chartsGlobalSetting.chartHeight
+            let _s = this.visualData.chartsGlobalSetting
+            chartObj.id = "cid" + generateUUID()
+            chartObj.width = _s.chartWidth
+            chartObj.height = _s.chartHeight
             chartObj.chartsToolHeight = 0
             // 图表不能生成在画布外
-            chartObj.left = _getX + chartObj.width > this.chartsGlobalSetting.bgWidth ? this.chartsGlobalSetting.bgWidth - chartObj.width
+            chartObj.left = _getX + chartObj.width > _s.bgWidth ? _s.bgWidth - chartObj.width
               : _getX
-            chartObj.top = _getY + chartObj.height > this.chartsGlobalSetting.bgHeight ? this.chartsGlobalSetting.bgHeight - chartObj.height - 2
+            chartObj.top = _getY + chartObj.height > _s.bgHeight ? _s.bgHeight - chartObj.height - 2
               : _getY
-            chartObj.zIndex = this.chartsList.length
+            chartObj.zIndex = this.visualData.chartsList.length
             chartObj.chartName = name
             chartObj.data = res.chartsData
-            this.chartsList.push(chartObj)
+            this.visualData.chartsList.push(chartObj)
           })
         }
       },
@@ -226,19 +236,20 @@
 
       // div移动鼠标移动事件
       mouseMove(event) {
+        let _s = this.visualData.chartsGlobalSetting
         let _X = this.currentDivX + event.clientX - this.currentX
         let _Y = this.currentDivY + event.clientY - this.currentY
         // 不允许拖拽超出画布
         // 左边界
         _X = _X > 0 ? _X : 0
         // 右边界
-        _X = _X <= this.chartsGlobalSetting.bgWidth - parseInt(this.currentCanvasDiv.style.width) ? _X
-          : this.chartsGlobalSetting.bgWidth - parseInt(this.currentCanvasDiv.style.width)
+        _X = _X <= _s.bgWidth - parseInt(this.currentCanvasDiv.style.width) ? _X
+          : _s.bgWidth - parseInt(this.currentCanvasDiv.style.width)
         // 上边界
         _Y = _Y > 0 ? _Y : 0
         // 下边界
-        _Y = _Y <= this.chartsGlobalSetting.bgHeight - parseInt(this.currentCanvasDiv.style.height) ? _Y
-          : this.chartsGlobalSetting.bgHeight - parseInt(this.currentCanvasDiv.style.height) - 2
+        _Y = _Y <= _s.bgHeight - parseInt(this.currentCanvasDiv.style.height) ? _Y
+          : _s.bgHeight - parseInt(this.currentCanvasDiv.style.height) - 2
         this.currentCanvasDiv.style.left = _X + 'px'
         this.currentCanvasDiv.style.top = _Y + 'px'
       },
@@ -294,11 +305,12 @@
         if (_X <= 0) {
           _X = 4
         }
+        let _s = this.visualData.chartsGlobalSetting
         let _width = this.currentDivWidth + this.currentX - _X
-        if (_width <= this.chartsGlobalSetting.minChartWidth) {
-          this.currentItem.width = this.chartsGlobalSetting.minChartWidth
-          u_bottom.style.width = u_top.style.width = this.chartsGlobalSetting.minChartWidth + 'px'
-          this.currentItem.left = this.currentDivWidth + this.currentDivX - this.chartsGlobalSetting.minChartWidth
+        if (_width <= _s.minChartWidth) {
+          this.currentItem.width = _s.minChartWidth
+          u_bottom.style.width = u_top.style.width = _s.minChartWidth + 'px'
+          this.currentItem.left = this.currentDivWidth + this.currentDivX - _s.minChartWidth
         } else {
           this.currentItem.width = _width
           u_bottom.style.width = u_top.style.width = _width + 'px'
@@ -311,13 +323,14 @@
         let u_top = document.getElementById('top')
         let u_bottom = document.getElementById('bottom')
         let _X = event.pageX
-        if (_X >= this.chartsGlobalSetting.bgWidth - 4) {
-          _X = this.chartsGlobalSetting.bgWidth - 4
+        let _s = this.visualData.chartsGlobalSetting
+        if (_X >= _s.bgWidth - 4) {
+          _X = _s.bgWidth - 4
         }
         let _width = this.currentDivWidth + _X - this.currentX
-        if (_width <= this.chartsGlobalSetting.minChartWidth) {
-          u_bottom.style.width = u_top.style.width = this.chartsGlobalSetting.minChartWidth + 'px'
-          this.currentItem.width = this.chartsGlobalSetting.minChartWidth
+        if (_width <= _s.minChartWidth) {
+          u_bottom.style.width = u_top.style.width = _s.minChartWidth + 'px'
+          this.currentItem.width = _s.minChartWidth
         } else {
           u_bottom.style.width = u_top.style.width = _width + 'px'
           this.currentItem.width = _width
@@ -329,13 +342,14 @@
         let u_right = document.getElementById('right')
         let u_left = document.getElementById('left')
         let _Y = event.pageY
-        if (_Y >= this.chartsGlobalSetting.bgHeight + 146) {
-          _Y = this.chartsGlobalSetting.bgHeight + 146
+        let _s = this.visualData.chartsGlobalSetting
+        if (_Y >= _s.bgHeight + 146) {
+          _Y = _s.bgHeight + 146
         }
         let _height = this.currentDivHeight + _Y - this.currentY
-        if (_height <= this.chartsGlobalSetting.minChartHeight) {
-          this.currentItem.height = this.chartsGlobalSetting.minChartHeight
-          u_left.style.height = u_right.style.height = this.chartsGlobalSetting.minChartHeight + 'px'
+        if (_height <= _s.minChartHeight) {
+          this.currentItem.height = _s.minChartHeight
+          u_left.style.height = u_right.style.height = _s.minChartHeight + 'px'
         } else {
           u_left.style.height = u_right.style.height = _height + 'px'
           this.currentItem.height = _height
@@ -350,11 +364,12 @@
         if (_Y <= 154) {
           _Y = 154
         }
+        let _s = this.visualData.chartsGlobalSetting
         let _height = this.currentDivHeight + this.currentY - _Y
-        if (_height <= this.chartsGlobalSetting.minChartHeight) {
-          this.currentItem.height = this.chartsGlobalSetting.minChartHeight
-          u_left.style.height = u_right.style.height = this.chartsGlobalSetting.minChartHeight + 'px'
-          this.currentItem.top = this.currentDivHeight + this.currentDivY - this.chartsGlobalSetting.minChartHeight
+        if (_height <= _s.minChartHeight) {
+          this.currentItem.height = _s.minChartHeight
+          u_left.style.height = u_right.style.height = _s.minChartHeight + 'px'
+          this.currentItem.top = this.currentDivHeight + this.currentDivY - _s.minChartHeight
         } else {
           this.currentItem.height = _height
           u_left.style.height = u_right.style.height = _height + 'px'
@@ -364,7 +379,7 @@
 
       // 删除图表
       delChart(index) {
-        this.chartsList.splice(index, 1)
+        this.visualData.chartsList.splice(index, 1)
       },
 
       // 修改图表数据
@@ -377,11 +392,17 @@
 
       // 保存图表
       saveCharts() {
-        let visualData = {
-          "globalSetting": this.chartsGlobalSetting,
-          "chartsData": this.chartsList,
-        }
-        console.log(visualData)
+        console.log(this.visualData)
+        saveVisualPage(this.visualData).then(res => {
+          console.log(res)
+        })
+      },
+
+      // 返回可视化页面列表页
+      backToVisList() {
+        this.$router.push({
+          name: "visualList"
+        })
       }
     }
   }
@@ -589,20 +610,31 @@
       background-color: #2b3843;
       text-align: left;
       padding: 0 20px;
-      line-height: 65px;
       color: #fff;
       position: fixed;
       top: 0;
       left: 0;
       z-index: 100;
 
+      .back-btn {
+        height: 100%;
+        line-height: 65px;
+        display: inline-block;
+        margin-right: 15px;
+
+        button {
+          padding: 7px;
+        }
+      }
+
       span {
         display: inline-block;
-        vertical-align: middle;
         padding-right: 15px;
       }
 
       .charts-select-menu {
+        height: 100%;
+        line-height: 65px;
         display: inline-block;
         list-style: none;
         vertical-align: middle;
@@ -634,6 +666,8 @@
       }
 
       .save-charts {
+        height: 100%;
+        line-height: 65px;
         float: right;
       }
     }

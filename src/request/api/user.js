@@ -8,4 +8,6 @@ export const logout = () => post('/api/logout')
 
 export const getVisualList = () => get('api/getVisualList')
 
+export const saveVisualPage = (params) => post('/api/saveVisualPage', params)
+
 

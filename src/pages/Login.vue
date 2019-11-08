@@ -45,7 +45,6 @@
             "userName": this.userName,
             "password": md5(this.password)
           }
-
           // 登录api
           this.$store.dispatch('user/login', loginJson).then(res => {
             if (res.loginResult) {

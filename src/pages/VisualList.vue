@@ -1,7 +1,7 @@
 <template>
   <div class="visual-list">
-    <div class="visual-box">
-      <img class="visual-img" src="../../static/img/big_data_img/big_data_demo.jpg" alt="">
+    <div class="visual-box" v-for="(item) in visualList" :key="item.visualPageId">
+      <img class="visual-img" :src="item.imgPath" alt="">
       <ul class="visual-toolbar">
         <li>查看<i class="el-icon-view"></i></li>
         <li>修改<i class="el-icon-edit-outline"></i></li>
@@ -20,7 +20,14 @@
   export default {
     name: "VisualList",
     data() {
-      return {}
+      return {
+        visualList: [
+          {
+            visualPageId: '12321wsdfd',
+            imgPath: 'http://localhost:3000/bigdata/visual_img/big_data_demo.jpg'
+          }
+        ]
+      }
     },
     mounted() {
       this.getVisualList()
@@ -32,10 +39,13 @@
         })
       },
       createNewPage() {
-        const routerUrl = this.$router.resolve({
+        this.$router.push({
           name: 'dataVisual'
         })
-        window.open(routerUrl.href, '_blank') // 打开新的页面
+        // const routerUrl = this.$router.resolve({
+        //   name: 'dataVisual'
+        // })
+        // window.open(routerUrl.href, '_blank') // 打开新的页面
       }
     }
   }

@@ -2,9 +2,12 @@
 
 var express = require('express')
 var router = express.Router()
+const mongoose = require('mongoose') // 引入mongoose模块
 const Users = require('../models/users') // 用户表
+const VisualPage = require('../models/visualPage') // 可视化页面表
 const createToken = require('../token/createToken')
 const decodeToken = require('../token/decodeToken')
+const async = require('async')
 
 /* 登录接口 */
 router.post('/login', (req, res) => {
@@ -18,18 +21,18 @@ router.post('/login', (req, res) => {
   Users.findOne(
     {'userName': reqJson.userName},
     ["name", "password", "_id", "roles"],
-    function (err, user) {
+    function (err, docs) {
       if (err) console.log(err)
-      if (!user) {
+      if (!docs) {
         resJson.data.loginResult = false
         resJson.data.message = "用户名不存在！"
         res.json(resJson)
       } else {
-        if (user.password === reqJson.password) {
+        if (docs.password === reqJson.password) {
           const tokenObj = {
-            "userid": user._id,
-            "name": user.name,
-            "roles": user.roles,
+            "userid": docs._id,
+            "name": docs.name,
+            "roles": docs.roles,
           }
           let token = createToken(tokenObj) // 创建一个新的token
           resJson.data.loginResult = true
@@ -74,20 +77,70 @@ router.get('/getVisualList', (req, res) => {
     "message": '',
     "data": {}
   }
-  let userId = decodeToken(req).userid
+  let userId = mongoose.Types.ObjectId(decodeToken(req).userid)
   Users.findOne(
-    {"userId": userId},
+    {"_id": userId},
     ["visualPage"],
-    function (err, visualPage) {
+    function (err, docs) {
       if (err) console.log(err)
-      if (!visualPage) {
+      if (!docs) {
         resJson.data.visualList = []
         res.json(resJson)
       } else {
-        console.log(visualPage.visualPage)
+        console.log(docs.visualPage)
         res.json(resJson)
       }
     })
+})
+
+/* 保存用户的可视化页面信息 */
+router.post('/saveVisualPage', (req, res) => {
+  let reqJson = req.body
+  let resJson = {
+    "status": 'ok',
+    "message": '',
+    "data": {}
+  }
+  let userId = mongoose.Types.ObjectId(decodeToken(req).userid)
+  let visualData = reqJson
+  let visualPage = new VisualPage({
+    visualPageId: visualData.visualPageId,
+    visualPageData: {
+      chartsList: visualData.chartsList,
+      chartsGlobalSetting: visualData.chartsGlobalSetting
+    }
+  })
+  async.parallel(
+    {
+      user: function (callback) {
+        Users.updateOne(
+          {"_id": userId},
+          {
+            $push: {
+              "visualPage": {
+                "visualPageId": visualData.visualPageId,
+                "visualPageName": visualData.visualPageName
+              }
+            }
+          },
+          function (err, docs) {
+            callback(err, docs)
+          }
+        )
+      },
+      visualPage: function (callback) {
+        visualPage.save(function (err, docs) {
+          callback(err, docs)
+        })
+      }
+    },
+    function (e, r) {
+      if (e) console.log(e)
+      console.log(r)
+      resJson.data.saveSuccess = true
+      res.json(resJson)
+    }
+  )
 })
 
 module.exports = router
