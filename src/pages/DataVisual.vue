@@ -116,6 +116,7 @@
   import Histogram3D from "@/components/charts/Histogram3D"
   import {getChartDefaultData} from "@/request/api/charts"
   import {saveVisualPage} from "@/request/api/user"
+  import {viewVisualPage} from "@/request/api/user"
   import {operateBdBg} from "../../static/js/bigdataBg"
   import {generateUUID} from "@/utils"
 
@@ -142,8 +143,9 @@
         currentItem: null, // 当鼠标按下时存放当前的图表数据
         mouseoutFlag: true, // 在鼠标移动过程中即使鼠标脱离了div，工具栏也不会消失
         visualData: {
-          visualPageId: "vpi" + generateUUID(),
+          visualPageId: "",
           visualPageName: "大数据可视化分析",
+          visualPageImg: "http://localhost:3000/bigdata/visual_img/big_data_demo.jpg",
           chartsList: [], // 存放图表数据
           chartsGlobalSetting: { // 整个图表的全局参数
             "bgWidth": 1900,
@@ -167,6 +169,22 @@
       //     obj.style.position = 'fixed'
       //   }
       // }
+      let visualPageId = this.$route.query.visualPageId // 获取路由参数
+      if (visualPageId) { // 如果id存在则为修改
+        this.visualData.visualPageId = visualPageId
+        viewVisualPage({"visualPageId": visualPageId}).then(res => {
+          if (res.hasPage) {
+            Object.assign(this.visualData, res.visualData.visualPageData)
+          } else {
+            this.$message({
+              message: res.message,
+              type: "error"
+            })
+          }
+        })
+      } else { // 若id未存在则新建
+        this.visualData.visualPageId = "vpi" + generateUUID()
+      }
       this.$nextTick(function () { // 绘制背景的canvas
         operateBdBg(this.$refs.canv, this.$refs.canvWrap)
       })
@@ -220,7 +238,7 @@
         event.preventDefault()
       },
 
-      // div移动鼠标按下事件
+      // div移动鼠标按下事件 用于拖动图表
       mouseDown(event, item) {
         this.mouseoutFlag = false
         this.currentItem = item
@@ -250,6 +268,8 @@
         // 下边界
         _Y = _Y <= _s.bgHeight - parseInt(this.currentCanvasDiv.style.height) ? _Y
           : _s.bgHeight - parseInt(this.currentCanvasDiv.style.height) - 2
+        this.currentItem.left = _X
+        this.currentItem.top = _Y
         this.currentCanvasDiv.style.left = _X + 'px'
         this.currentCanvasDiv.style.top = _Y + 'px'
       },
@@ -343,8 +363,8 @@
         let u_left = document.getElementById('left')
         let _Y = event.pageY
         let _s = this.visualData.chartsGlobalSetting
-        if (_Y >= _s.bgHeight + 146) {
-          _Y = _s.bgHeight + 146
+        if (_Y >= _s.bgHeight + 60) {
+          _Y = _s.bgHeight + 60
         }
         let _height = this.currentDivHeight + _Y - this.currentY
         if (_height <= _s.minChartHeight) {
@@ -361,8 +381,8 @@
         let u_right = document.getElementById('right')
         let u_left = document.getElementById('left')
         let _Y = event.pageY
-        if (_Y <= 154) {
-          _Y = 154
+        if (_Y <= 69) {
+          _Y = 69
         }
         let _s = this.visualData.chartsGlobalSetting
         let _height = this.currentDivHeight + this.currentY - _Y
@@ -392,9 +412,13 @@
 
       // 保存图表
       saveCharts() {
-        console.log(this.visualData)
         saveVisualPage(this.visualData).then(res => {
-          console.log(res)
+          if (res.saveSuccess) {
+            this.$message({
+              message: "保存成功",
+              type: "success",
+            })
+          }
         })
       },
 

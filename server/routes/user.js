@@ -83,13 +83,9 @@ router.get('/getVisualList', (req, res) => {
     ["visualPage"],
     function (err, docs) {
       if (err) console.log(err)
-      if (!docs) {
-        resJson.data.visualList = []
-        res.json(resJson)
-      } else {
-        console.log(docs.visualPage)
-        res.json(resJson)
-      }
+      resJson.data.visualList = docs.visualPage
+      res.json(resJson)
+
     })
 })
 
@@ -103,44 +99,133 @@ router.post('/saveVisualPage', (req, res) => {
   }
   let userId = mongoose.Types.ObjectId(decodeToken(req).userid)
   let visualData = reqJson
-  let visualPage = new VisualPage({
-    visualPageId: visualData.visualPageId,
-    visualPageData: {
-      chartsList: visualData.chartsList,
-      chartsGlobalSetting: visualData.chartsGlobalSetting
-    }
-  })
+  // 同时进行多个异步操作,全部完成时回调,回调结果为多个异步返回的结果的对象集
   async.parallel(
     {
       user: function (callback) {
-        Users.updateOne(
-          {"_id": userId},
-          {
-            $push: {
-              "visualPage": {
-                "visualPageId": visualData.visualPageId,
-                "visualPageName": visualData.visualPageName
-              }
-            }
-          },
+        Users.findOne(
+          {"_id": userId, "visualPage.visualPageId": visualData.visualPageId},
+          ["visualPage.$"],
           function (err, docs) {
-            callback(err, docs)
+            if (err) console.log(err)
+            if (!docs) { // 不存在id则添加
+              Users.updateOne(
+                {"_id": userId},
+                {
+                  $push: {
+                    "visualPage": {
+                      "visualPageId": visualData.visualPageId,
+                      "visualPageName": visualData.visualPageName,
+                      "visualPageImg": visualData.visualPageImg
+                    }
+                  }
+                },
+                function (err, docs) {
+                  callback(err, docs)
+                }
+              )
+            } else { // 存在则修改
+              Users.updateOne(
+                {"_id": userId, "visualPage.visualPageId": visualData.visualPageId},
+                {
+                  $set: {
+                    "visualPage.$.visualPageName": visualData.visualPageName,
+                    "visualPage.$.visualPageImg": visualData.visualPageImg
+                  }
+                },
+                function (err, docs) {
+                  callback(err, docs)
+                }
+              )
+            }
           }
         )
       },
       visualPage: function (callback) {
-        visualPage.save(function (err, docs) {
-          callback(err, docs)
-        })
+        let visualPageData = {
+          visualPageName: visualData.visualPageName,
+          chartsList: visualData.chartsList,
+          chartsGlobalSetting: visualData.chartsGlobalSetting
+        }
+        VisualPage.updateOne(
+          {"visualPageId": visualData.visualPageId},
+          {$set: {"visualPageData": visualPageData}},
+          {upsert: true},
+          function (err, docs) {
+            callback(err, docs)
+          })
       }
     },
     function (e, r) {
-      if (e) console.log(e)
-      console.log(r)
+      if (e) console.log(e, r)
       resJson.data.saveSuccess = true
       res.json(resJson)
     }
   )
+})
+
+/* 查看用户的可视化页面,通过id获取数据 */
+router.post('/viewVisualPage', (req, res) => {
+  let reqJson = req.body
+  let resJson = {
+    "status": 'ok',
+    "message": '',
+    "data": {}
+  }
+  let visualPageId = reqJson.visualPageId
+  VisualPage.findOne(
+    {"visualPageId": visualPageId},
+    function (err, docs) {
+      if (err) console.log(err)
+      if (!docs) {
+        resJson.data.hasPage = false
+        resJson.data.message = "visualPageId不存在!"
+        res.json(resJson)
+      }
+      resJson.data.hasPage = true
+      resJson.data.visualData = docs
+      res.json(resJson)
+    }
+  )
+})
+
+/* 删除用户的可视化页面,通过id删除 */
+router.post('/delVisualPage', (req, res) => {
+  let reqJson = req.body
+  let resJson = {
+    "status": 'ok',
+    "message": '',
+    "data": {}
+  }
+  let userId = mongoose.Types.ObjectId(decodeToken(req).userid)
+  let visualPageId = reqJson.visualPageId
+  async.parallel({
+    user: function (callback) {
+      Users.updateOne(
+        {"_id": userId},
+        {
+          $pull: {
+            "visualPage": {"visualPageId": visualPageId}
+          }
+        },
+        function (err, docs) {
+          callback(err, docs)
+        }
+      )
+    },
+    visualPage: function (callback) {
+      VisualPage.remove(
+        {"visualPageId": visualPageId},
+        function (err, docs) {
+          callback(err, docs)
+        }
+      )
+    }
+  }, function (err, docs) {
+    if (err) console.log(err + docs)
+    resJson.data.delSuccess = true
+    res.json(resJson)
+  })
 })
 
 module.exports = router

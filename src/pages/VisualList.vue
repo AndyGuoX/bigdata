@@ -1,11 +1,11 @@
 <template>
   <div class="visual-list">
     <div class="visual-box" v-for="(item) in visualList" :key="item.visualPageId">
-      <img class="visual-img" :src="item.imgPath" alt="">
+      <img class="visual-img" :src="item.visualPageImg" alt="">
       <ul class="visual-toolbar">
-        <li>查看<i class="el-icon-view"></i></li>
-        <li>修改<i class="el-icon-edit-outline"></i></li>
-        <li>删除<i class="el-icon-delete"></i></li>
+        <li @click="viewPage(item)">查看<i class="el-icon-view"></i></li>
+        <li @click="changePage(item)">修改<i class="el-icon-edit-outline"></i></li>
+        <li @click="delPage(item)">删除<i class="el-icon-delete"></i></li>
       </ul>
     </div>
     <div class="add-visual" @click="createNewPage">
@@ -16,17 +16,13 @@
 
 <script>
   import {getVisualList} from "@/request/api/user"
+  import {delVisualPage} from "@/request/api/user"
 
   export default {
     name: "VisualList",
     data() {
       return {
-        visualList: [
-          {
-            visualPageId: '12321wsdfd',
-            imgPath: 'http://localhost:3000/bigdata/visual_img/big_data_demo.jpg'
-          }
-        ]
+        visualList: []
       }
     },
     mounted() {
@@ -35,17 +31,47 @@
     methods: {
       getVisualList() {
         getVisualList().then(res => {
-          console.log(res)
+          this.visualList = res.visualList
         })
       },
       createNewPage() {
         this.$router.push({
           name: 'dataVisual'
         })
-        // const routerUrl = this.$router.resolve({
-        //   name: 'dataVisual'
-        // })
-        // window.open(routerUrl.href, '_blank') // 打开新的页面
+      },
+
+      // 查看图表
+      viewPage(item) {
+        const routerUrl = this.$router.resolve({
+          name: 'viewVisual',
+          query: {
+            visualPageId: item.visualPageId
+          }
+        })
+        window.open(routerUrl.href, '_blank') // 打开新页面
+      },
+
+      // 修改图表
+      changePage(item) {
+        this.$router.push({
+          name: 'dataVisual',
+          query: {
+            visualPageId: item.visualPageId
+          }
+        })
+      },
+
+      // 删除图表
+      delPage(item) {
+        delVisualPage({"visualPageId": item.visualPageId}).then(res => {
+          if (res.delSuccess) {
+            this.getVisualList()
+            this.$message({
+              message: "删除成功!",
+              type: "success"
+            })
+          }
+        })
       }
     }
   }

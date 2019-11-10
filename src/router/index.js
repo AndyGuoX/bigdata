@@ -54,6 +54,12 @@ export const asyncRoutes = [
     component: () => import("@/pages/DataVisual"),
   },
   {
+    path: '/view_visual',
+    name: 'viewVisual',
+    meta: {title: '数据可视化页面'},
+    component: () => import("@/pages/ViewVisual")
+  },
+  {
     path: '*',
     hidden: true,
     redirect: {path: '/404'}
