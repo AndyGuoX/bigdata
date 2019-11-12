@@ -1,5 +1,4 @@
 <!-- 404页面 created by andyguo -->
-
 <template>
   <div class="error-container">
     <div class="error_404">

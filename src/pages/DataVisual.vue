@@ -131,7 +131,6 @@
     },
     data() {
       return {
-
         currentX: 0, // 鼠标按下时记录当前横坐标
         currentY: 0, // 鼠标按下时记录当前纵坐标
         currentDivX: 0, // 鼠标按下时要移动的div的横坐标
@@ -170,7 +169,7 @@
       //   }
       // }
       let visualPageId = this.$route.query.visualPageId // 获取路由参数
-      if (visualPageId) { // 如果id存在则为修改
+      if (visualPageId) { // 如果id存在则为修改可视化页面
         this.visualData.visualPageId = visualPageId
         viewVisualPage({"visualPageId": visualPageId}).then(res => {
           if (res.hasPage) {
@@ -182,7 +181,7 @@
             })
           }
         })
-      } else { // 若id未存在则新建
+      } else { // 若id未存在则新建可视化页面
         this.visualData.visualPageId = "vpi" + generateUUID()
       }
       this.$nextTick(function () { // 绘制背景的canvas

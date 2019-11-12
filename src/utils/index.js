@@ -2,7 +2,6 @@
 
 // 生成uuid
 export function generateUUID() {
-
   var d = new Date().getTime()
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
     var r = (d + Math.random() * 16) % 16 | 0
