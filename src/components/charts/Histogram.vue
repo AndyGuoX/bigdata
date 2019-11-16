@@ -18,16 +18,12 @@
       },
       width() {
         this.$nextTick(function () {
-          this.$nextTick(function () {
-            this.myChart.resize()
-          })
+          this.myChart.resize()
         })
       },
       height() {
         this.$nextTick(function () {
-          this.$nextTick(function () {
-            this.myChart.resize()
-          })
+          this.myChart.resize()
         })
       }
     },

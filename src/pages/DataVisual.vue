@@ -70,13 +70,16 @@
                      index:${item.zIndex}`"
              @mouseenter="mouseenter(item)"
              @mouseleave="mouseleave(item)">
-          <div class="left-border" id="left" ref="left" :style="`height:${item.height}px;left:0;top:0;`"
+          <div class="left-border drag-border" id="left" ref="left"
+               :style="`height:${item.height}px;left:0;top:0;background-color:${item.virtualBorderColor}`"
                @mousedown="c_mouseDown($event,item)"></div>
-          <div class="top-border" id="top" ref="top" :style="`width:${item.width}px;left:0;top:0;`"
+          <div class="top-border drag-border" id="top" ref="top" :style="`width:${item.width}px;left:0;top:0;
+          background-color:${item.virtualBorderColor}`" @mousedown="c_mouseDown($event,item)"></div>
+          <div class="right-border drag-border" id="right" ref="right"
+               :style="`height:${item.height}px;right:0;top:0;background-color:${item.virtualBorderColor}`"
                @mousedown="c_mouseDown($event,item)"></div>
-          <div class="right-border" id="right" ref="right" :style="`height:${item.height}px;right:0;top:0;`"
-               @mousedown="c_mouseDown($event,item)"></div>
-          <div class="bottom-border" id="bottom" ref="bottom" :style="`width:${item.width}px;left:0;bottom:0;`"
+          <div class="bottom-border drag-border" id="bottom" ref="bottom"
+               :style="`width:${item.width}px;left:0;bottom:0;background-color:${item.virtualBorderColor}`"
                @mousedown="c_mouseDown($event,item)"></div>
           <span class="top-left border-span"></span>
           <span class="top-right border-span"></span>
@@ -147,27 +150,19 @@
           visualPageImg: "http://localhost:3000/bigdata/visual_img/big_data_demo.jpg",
           chartsList: [], // 存放图表数据
           chartsGlobalSetting: { // 整个图表的全局参数
-            "bgWidth": 1900,
+            "bgWidth": 1920,
             "bgHeight": 1080,
-            "minChartWidth": 300,
-            "minChartHeight": 200,
-            "chartWidth": 480,
-            "chartHeight": 280
+            "minChartWidth": 0,
+            "minChartHeight": 0,
+            "chartWidth": 0,
+            "chartHeight": 0,
+            "gridNum": 40,
           },
         }
       }
     },
     mounted() {
-      // let obj = this.$refs.charts_select_header
-      // // 滚动页面到85px时固定图表选项行
-      // window.onscroll = function () {
-      //   let scrollTop = document.documentElement.scrollTop || document.body.scrollTop
-      //   if (scrollTop < 85) {
-      //     obj.style.position = 'absolute'
-      //   } else {
-      //     obj.style.position = 'fixed'
-      //   }
-      // }
+      this.setChartWH()
       let visualPageId = this.$route.query.visualPageId // 获取路由参数
       if (visualPageId) { // 如果id存在则为修改可视化页面
         this.visualData.visualPageId = visualPageId
@@ -198,15 +193,18 @@
 
       // 绑定在可放置的元素上
       drop(event) {
+        let _s = this.visualData.chartsGlobalSetting
+        let _n_w = _s.bgWidth / _s.gridNum
+        let _n_h = _s.bgHeight / _s.gridNum
         const path = event.path || (event.composedPath && event.composedPath())// 兼容火狐和Safari
         let type = event.dataTransfer.getData('type')
         let name = event.dataTransfer.getData('name')
         if (type === 'charts') {
-          let _getX = event.offsetX,
-            _getY = event.offsetY
+          let _getX = Math.floor(event.offsetX / _n_w) * _n_w,
+            _getY = Math.floor(event.offsetY / _n_h) * _n_h
           if (path[0].tagName === 'CANVAS') {
             // 当图表生成位置与已有图表重合时，继续在此位置生成。
-            let parentDiv = path[4]
+            let parentDiv = path[3]
             _getX += parseInt(parentDiv.style.left)
             _getY += parseInt(parentDiv.style.top)
           }
@@ -217,6 +215,7 @@
             chartObj.id = "cid" + generateUUID()
             chartObj.width = _s.chartWidth
             chartObj.height = _s.chartHeight
+            chartObj.virtualBorderColor = 'transparent'
             chartObj.chartsToolHeight = 0
             // 图表不能生成在画布外
             chartObj.left = _getX + chartObj.width > _s.bgWidth ? _s.bgWidth - chartObj.width
@@ -254,8 +253,10 @@
       // div移动鼠标移动事件
       mouseMove(event) {
         let _s = this.visualData.chartsGlobalSetting
-        let _X = this.currentDivX + event.clientX - this.currentX
-        let _Y = this.currentDivY + event.clientY - this.currentY
+        let _n_w = _s.bgWidth / _s.gridNum
+        let _n_h = _s.bgHeight / _s.gridNum
+        let _X = this.currentDivX + Math.floor((event.clientX - this.currentX) / _n_w) * _n_w
+        let _Y = this.currentDivY + Math.floor((event.clientY - this.currentY) / _n_h) * _n_h
         // 不允许拖拽超出画布
         // 左边界
         _X = _X > 0 ? _X : 0
@@ -308,91 +309,89 @@
         this.currentDivY = parseInt(this.currentCanvasDiv.style.top)
         document.addEventListener("mousemove", eval('this.' + this.currentBorder + 'Move'))
         document.addEventListener("mouseup", this.c_mouseUp)
+        // this.currentItem.virtualBorderColor = "#f5a623"
       },
 
       // div大小变化鼠标抬起事件
       c_mouseUp() {
         document.removeEventListener("mousemove", eval('this.' + this.currentBorder + 'Move'))
         document.removeEventListener("mouseup", this.c_mouseUp)
+        // this.currentItem.virtualBorderColor = "transparent"
       },
 
       // 拖动左边界
       leftMove(event) {
-        let u_top = document.getElementById('top')
-        let u_bottom = document.getElementById('bottom')
+        let _s = this.visualData.chartsGlobalSetting
+        let _n_w = _s.bgWidth / _s.gridNum
         let _X = event.pageX
         if (_X <= 0) {
-          _X = 4
+          _X = 0
         }
-        let _s = this.visualData.chartsGlobalSetting
-        let _width = this.currentDivWidth + this.currentX - _X
+        let _diff = (this.currentX - _X > 0) ? Math.floor((this.currentX - _X) / _n_w) * _n_w
+          : Math.ceil((this.currentX - _X) / _n_w) * _n_w
+        let _width = this.currentDivWidth + _diff
         if (_width <= _s.minChartWidth) {
           this.currentItem.width = _s.minChartWidth
-          u_bottom.style.width = u_top.style.width = _s.minChartWidth + 'px'
           this.currentItem.left = this.currentDivWidth + this.currentDivX - _s.minChartWidth
         } else {
           this.currentItem.width = _width
-          u_bottom.style.width = u_top.style.width = _width + 'px'
-          this.currentItem.left = this.currentDivX + _X - this.currentX
+          this.currentItem.left = this.currentDivX - _diff
         }
       },
 
       // 拖动右边界
       rightMove(event) {
-        let u_top = document.getElementById('top')
-        let u_bottom = document.getElementById('bottom')
-        let _X = event.pageX
         let _s = this.visualData.chartsGlobalSetting
-        if (_X >= _s.bgWidth - 4) {
-          _X = _s.bgWidth - 4
+        let _n_w = _s.bgWidth / _s.gridNum
+        let _X = event.pageX
+        if (_X >= _s.bgWidth) {
+          _X = _s.bgWidth
         }
-        let _width = this.currentDivWidth + _X - this.currentX
+        let _diff = (this.currentX - _X > 0) ? Math.floor((this.currentX - _X) / _n_w) * _n_w
+          : Math.ceil((this.currentX - _X) / _n_w) * _n_w
+        let _width = this.currentDivWidth - _diff
         if (_width <= _s.minChartWidth) {
-          u_bottom.style.width = u_top.style.width = _s.minChartWidth + 'px'
           this.currentItem.width = _s.minChartWidth
         } else {
-          u_bottom.style.width = u_top.style.width = _width + 'px'
           this.currentItem.width = _width
         }
       },
 
       // 拖动下边界
       bottomMove(event) {
-        let u_right = document.getElementById('right')
-        let u_left = document.getElementById('left')
-        let _Y = event.pageY
         let _s = this.visualData.chartsGlobalSetting
-        if (_Y >= _s.bgHeight + 60) {
-          _Y = _s.bgHeight + 60
+        let _n_h = _s.bgHeight / _s.gridNum
+        let _Y = event.pageY
+        if (_Y >= _s.bgHeight + 65) {
+          _Y = _s.bgHeight + 65
         }
-        let _height = this.currentDivHeight + _Y - this.currentY
+        let _diff = (this.currentY - _Y > 0) ? Math.floor((this.currentY - _Y) / _n_h) * _n_h
+          : Math.ceil((this.currentY - _Y) / _n_h) * _n_h
+        let _height = this.currentDivHeight - _diff
         if (_height <= _s.minChartHeight) {
           this.currentItem.height = _s.minChartHeight
-          u_left.style.height = u_right.style.height = _s.minChartHeight + 'px'
         } else {
-          u_left.style.height = u_right.style.height = _height + 'px'
           this.currentItem.height = _height
         }
       },
 
       // 拖动上边界
       topMove(event) {
-        let u_right = document.getElementById('right')
-        let u_left = document.getElementById('left')
-        let _Y = event.pageY
-        if (_Y <= 69) {
-          _Y = 69
-        }
         let _s = this.visualData.chartsGlobalSetting
-        let _height = this.currentDivHeight + this.currentY - _Y
+        let _n_h = _s.bgHeight / _s.gridNum
+        let _Y = event.pageY
+        if (_Y <= 65) {
+          _Y = 65
+        }
+        let _diff = (this.currentY - _Y > 0) ? Math.floor((this.currentY - _Y) / _n_h) * _n_h
+          : Math.ceil((this.currentY - _Y) / _n_h) * _n_h
+        let _height = this.currentDivHeight + _diff
         if (_height <= _s.minChartHeight) {
           this.currentItem.height = _s.minChartHeight
-          u_left.style.height = u_right.style.height = _s.minChartHeight + 'px'
           this.currentItem.top = this.currentDivHeight + this.currentDivY - _s.minChartHeight
         } else {
           this.currentItem.height = _height
-          u_left.style.height = u_right.style.height = _height + 'px'
-          this.currentItem.top = this.currentDivY + _Y - this.currentY
+          this.currentItem.top = this.currentDivY - _diff
         }
       },
 
@@ -426,7 +425,18 @@
         this.$router.push({
           name: "visualList"
         })
-      }
+      },
+
+      // 计算图表的最小宽度和高度
+      setChartWH() {
+        let _s = this.visualData.chartsGlobalSetting
+        let _w = _s.bgWidth / _s.gridNum
+        let _h = _s.bgHeight / _s.gridNum
+        _s.minChartWidth = _w * 6
+        _s.minChartHeight = _h * 6
+        _s.chartWidth = _w * 10
+        _s.chartHeight = _h * 10
+      },
     }
   }
 </script>
@@ -478,38 +488,31 @@
         position: relative;
         width: 100%;
         height: 100%;
-        overflow: hidden;
+
+        .drag-border {
+          background-color: transparent;
+          position: absolute;
+          z-index: 100;
+        }
 
         .left-border {
           width: 4px;
-          background-color: transparent;
-          position: absolute;
           cursor: w-resize;
-          z-index: 100;
         }
 
         .top-border {
           height: 4px;
-          background-color: transparent;
-          position: absolute;
           cursor: n-resize;
-          z-index: 100;
         }
 
         .right-border {
           width: 4px;
-          background-color: transparent;
-          position: absolute;
           cursor: e-resize;
-          z-index: 100;
         }
 
         .bottom-border {
           height: 4px;
-          background-color: transparent;
-          position: absolute;
           cursor: s-resize;
-          z-index: 100;
         }
 
         .border-span {
