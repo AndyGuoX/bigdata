@@ -81,10 +81,10 @@
           <div class="bottom-border drag-border" id="bottom" ref="bottom"
                :style="`width:${item.width}px;left:0;bottom:0;background-color:${item.virtualBorderColor}`"
                @mousedown="c_mouseDown($event,item)"></div>
-          <span class="top-left border-span"></span>
-          <span class="top-right border-span"></span>
-          <span class="bottom-left border-span"></span>
-          <span class="bottom-right border-span"></span>
+          <span class="top-left border-span" id="tl" @mousedown="c_mouseDown($event,item)"></span>
+          <span class="top-right border-span" id="tr" @mousedown="c_mouseDown($event,item)"></span>
+          <span class="bottom-left border-span" id="bl" @mousedown="c_mouseDown($event,item)"></span>
+          <span class="bottom-right border-span" id="br" @mousedown="c_mouseDown($event,item)"></span>
           <div class="charts-tools"
                :style="`height:${item.chartsToolHeight}px;background-color:#99dfff;transition:0.3s;
                          overflow:hidden;`">
@@ -156,7 +156,7 @@
             "minChartHeight": 0,
             "chartWidth": 0,
             "chartHeight": 0,
-            "gridNum": 40,
+            "gridNum": 40
           },
         }
       }
@@ -168,7 +168,7 @@
         this.visualData.visualPageId = visualPageId
         viewVisualPage({"visualPageId": visualPageId}).then(res => {
           if (res.hasPage) {
-            Object.assign(this.visualData, res.visualData.visualPageData)
+            Object.assign(this.visualData, res.visualData.visualPageData);
           } else {
             this.$message({
               message: res.message,
@@ -395,6 +395,27 @@
         }
       },
 
+      //拖动左上角
+      tlMove(e){
+        this.leftMove(e);
+        this.topMove(e);
+      },
+      //拖动右上角
+      trMove(e){
+        this.rightMove(e);
+        this.topMove(e);
+      },
+      //拖动左下角
+      blMove(e){
+        this.leftMove(e);
+        this.bottomMove(e);
+      },
+      //拖动右下角
+      brMove(e){
+        this.rightMove(e);
+        this.bottomMove(e);
+      },
+
       // 删除图表
       delChart(index) {
         this.visualData.chartsList.splice(index, 1)
@@ -520,6 +541,7 @@
           position: absolute;
           width: 20px;
           height: 20px;
+          z-index:101;
         }
 
         span.top-left {
@@ -527,6 +549,7 @@
           left: 0;
           border-top: 2px solid #00c0ff;
           border-left: 2px solid #00c0ff;
+          cursor:nw-resize;
         }
 
         span.top-right {
@@ -534,6 +557,7 @@
           right: 0;
           border-top: 2px solid #00c0ff;
           border-right: 2px solid #00c0ff;
+          cursor:ne-resize;
         }
 
         span.bottom-left {
@@ -541,6 +565,7 @@
           left: 0;
           border-bottom: 2px solid #00c0ff;
           border-left: 2px solid #00c0ff;
+          cursor:sw-resize;
         }
 
         span.bottom-right {
@@ -548,6 +573,7 @@
           right: 0;
           border-bottom: 2px solid #00c0ff;
           border-right: 2px solid #00c0ff;
+          cursor:se-resize;
         }
       }
 
