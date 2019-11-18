@@ -50,7 +50,7 @@
           this.$store.dispatch('user/login', loginJson).then(res => {
             if (res.loginResult) {
               this.$router.push({
-                name: 'cluster'
+                name: 'cluster',
               })
             } else {
               this.$message({

@@ -35,7 +35,7 @@ app.use(cookieParser())
 app.use(express.static(path.join(__dirname, 'public')))
 
 // 配置虚拟路径 -- 映射到服务端文件夹
-app.use('/bigdata', express.static("/home/andyguo/sources/bigdata"))
+app.use('/bigdata', express.static("D://bigdata"))
 
 //设置跨域访问
 app.all('*', function (req, res, next) {
