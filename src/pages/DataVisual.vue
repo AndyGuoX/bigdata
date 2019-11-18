@@ -4,7 +4,56 @@
       <div class="back-btn">
         <el-button type="primary" icon="el-icon-arrow-left" @click="backToVisList">返回列表</el-button>
       </div>
-      <span>2D图表</span>
+      <el-dropdown>
+        <span class="el-dropdown-link">
+          2D图表<i class="el-icon-arrow-down el-icon--right"></i>
+        </span>
+        <el-dropdown-menu slot="dropdown">
+          <el-dropdown-item >
+            <p data-type="charts" data-name="Histogram" draggable="true" @dragstart="dragstart">
+              <i  class="iconfont icon-charts" ></i>柱状图
+            </p>
+          </el-dropdown-item>
+          <el-dropdown-item>
+            <p data-type="charts" data-name="VeLine" draggable="true" @dragstart="dragstart">
+              <i  class="iconfont icon-charts1" ></i>折线图
+            </p>
+          </el-dropdown-item>
+          <el-dropdown-item>
+            <p data-type="charts" data-name="Pie" draggable="true" @dragstart="dragstart">
+              <i  class="iconfont icon-fendianbaobiao"></i>饼图
+            </p>
+          </el-dropdown-item>
+          <el-dropdown-item>
+            <p data-type="charts" data-name="Radar" draggable="true" @dragstart="dragstart">
+              <i  class="iconfont icon-radar"></i>雷达图
+            </p>  
+          </el-dropdown-item>
+          <el-dropdown-item>
+            <p data-type="charts" data-name="Scatter" draggable="true" @dragstart="dragstart">
+              <i  class="iconfont"></i>散点图
+            </p>  
+          </el-dropdown-item>
+          <el-dropdown-item>
+            <p data-type="charts" data-name="Funnel" draggable="true" @dragstart="dragstart">
+              <i  class="iconfont"></i>漏斗图
+            </p>  
+          </el-dropdown-item>
+        </el-dropdown-menu>
+      </el-dropdown>
+      <el-dropdown>
+        <span class="el-dropdown-link">
+          3D图表<i class="el-icon-arrow-down el-icon--right"></i>
+        </span>
+        <el-dropdown-menu slot="dropdown">
+          <el-dropdown-item>
+            <p data-type="charts" data-name="Histogram3D" draggable="true" @dragstart="dragstart">
+              <i  class="iconfont icon-bar_d_chart"></i>3D柱状图
+            </p>  
+          </el-dropdown-item>
+        </el-dropdown-menu>
+      </el-dropdown>
+     <!--  <span>2D图表</span>
       <ul class="charts-select-menu">
         <li>
           <i data-type="charts" data-name="Histogram" class="iconfont icon-charts" draggable="true"
@@ -22,14 +71,14 @@
           <i data-type="charts" data-name="Radar" class="iconfont icon-radar"
              draggable="true" @dragstart="dragstart"></i>
         </li>
-      </ul>
-      <span>3D图表</span>
+      </ul> -->
+      <!-- <span>3D图表</span>
       <ul class="charts-select-menu">
         <li>
           <i data-type="charts" data-name="Histogram3D" class="iconfont icon-bar_d_chart"
              draggable="true" @dragstart="dragstart"></i>
         </li>
-      </ul>
+      </ul> -->
       <div class="save-charts">
         <el-button type="success" round @click="saveCharts">保存图表</el-button>
       </div>
@@ -116,6 +165,8 @@
   import VeLine from '@/components/charts/VeLine'
   import Pie from '@/components/charts/Pie'
   import Radar from '@/components/charts/Radar'
+  import Scatter from '@/components/charts/Scatter'
+  import Funnel from '@/components/charts/Funnel'
   import Histogram3D from "@/components/charts/Histogram3D"
   import {getChartDefaultData} from "@/request/api/charts"
   import {saveVisualPage} from "@/request/api/user"
@@ -130,7 +181,9 @@
       VeLine,
       Pie,
       Radar,
+      Scatter,
       Histogram3D,
+      Funnel
     },
     data() {
       return {
@@ -667,7 +720,10 @@
       top: 0;
       left: 0;
       z-index: 100;
-
+  
+      .el-dropdown-link{
+        color:#fff;
+      }
       .back-btn {
         height: 100%;
         line-height: 65px;

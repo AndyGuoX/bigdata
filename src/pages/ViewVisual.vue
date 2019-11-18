@@ -52,6 +52,8 @@
   import VeLine from '@/components/charts/VeLine'
   import Pie from '@/components/charts/Pie'
   import Radar from '@/components/charts/Radar'
+  import Scatter from '@/components/charts/Scatter'
+  import Funnel from '@/components/charts/Funnel'
   import Histogram3D from "@/components/charts/Histogram3D"
   import {operateBdBg} from "../../static/js/bigdataBg"
   import {viewVisualPage} from "@/request/api/user"
@@ -64,6 +66,8 @@
       Pie,
       Radar,
       Histogram3D,
+      Scatter,
+      Funnel
     },
     data() {
       return {
