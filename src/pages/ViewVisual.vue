@@ -54,6 +54,8 @@
   import Radar from '@/components/charts/Radar'
   import Scatter from '@/components/charts/Scatter'
   import Funnel from '@/components/charts/Funnel'
+  import LiquidFill from '@/components/charts/LiquidFill'
+  import Sunburst from '@/components/charts/Sunburst'
   import Histogram3D from "@/components/charts/Histogram3D"
   import {operateBdBg} from "../../static/js/bigdataBg"
   import {viewVisualPage} from "@/request/api/user"
@@ -67,7 +69,9 @@
       Radar,
       Histogram3D,
       Scatter,
-      Funnel
+      Funnel,
+      LiquidFill,
+      Sunburst
     },
     data() {
       return {

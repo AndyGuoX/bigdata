@@ -39,6 +39,16 @@
               <i  class="iconfont"></i>漏斗图
             </p>  
           </el-dropdown-item>
+          <el-dropdown-item>
+            <p data-type="charts" data-name="LiquidFill" draggable="true" @dragstart="dragstart">
+              <i  class="iconfont"></i>水球图
+            </p>  
+          </el-dropdown-item>
+          <el-dropdown-item>
+            <p data-type="charts" data-name="Sunburst" draggable="true" @dragstart="dragstart">
+              <i  class="iconfont"></i>旭日图
+            </p>  
+          </el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
       <el-dropdown>
@@ -167,6 +177,8 @@
   import Radar from '@/components/charts/Radar'
   import Scatter from '@/components/charts/Scatter'
   import Funnel from '@/components/charts/Funnel'
+  import LiquidFill from '@/components/charts/LiquidFill'
+  import Sunburst from '@/components/charts/Sunburst'
   import Histogram3D from "@/components/charts/Histogram3D"
   import {getChartDefaultData} from "@/request/api/charts"
   import {saveVisualPage} from "@/request/api/user"
@@ -183,7 +195,9 @@
       Radar,
       Scatter,
       Histogram3D,
-      Funnel
+      Funnel,
+      LiquidFill,
+      Sunburst
     },
     data() {
       return {
@@ -562,6 +576,7 @@
         position: relative;
         width: 100%;
         height: 100%;
+        overflow: hidden;
 
         .drag-border {
           background-color: transparent;
