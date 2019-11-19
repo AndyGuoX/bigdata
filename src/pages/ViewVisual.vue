@@ -75,7 +75,9 @@
     },
     data() {
       return {
-        visualData: {}
+        visualData: {
+          chartsGlobalSetting: {}
+        }
       }
     },
     mounted() {
@@ -83,15 +85,15 @@
       viewVisualPage({"visualPageId": visualPageId}).then(res => {
         if (res.hasPage) {
           this.visualData = res.visualData.visualPageData
+          this.$nextTick(function () {
+            operateBdBg(this.$refs.canv, this.$refs.canvWrap)
+          })
         } else {
           this.$message({
             message: res.message,
             type: "error"
           })
         }
-      })
-      this.$nextTick(function () { // 绘制背景的canvas
-        operateBdBg(this.$refs.canv, this.$refs.canvWrap)
       })
     },
     methods: {}
