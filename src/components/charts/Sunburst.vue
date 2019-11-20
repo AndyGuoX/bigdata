@@ -18,7 +18,7 @@
       },
       width() {
         this.$nextTick(function () {
-          this.myChart.resize();
+          this.myChart.resize()
           // if( parseInt(this.width) <= 435){
           // 	this.myChart._model.option.series[0].label.show = false
           // }else{
@@ -33,43 +33,42 @@
       }
     },
     mounted() {
-    	let _this = this ;
-    	let data = this.data;
-		let option = {
-			title:{
-				text:'三大城市支付方式统计',
-				textStyle:{
-					color:'rgba(255,255,255,.7)'
-				},
-				left:'center'
-			},
-			tooltip:{
-				show:true,
-				// formatter:'{a},{b},{c},{d}'s
-			},
-		    visualMap: {
-		        // type: 'continuous',
-		        min: 0,
-		        max: 10,
-		        show:false,
-		        inRange: {
-		            color: ["#065aab", "#066eab", "#0682ab", "#0696ab", "#06a0ab"]
-		        }
-		    },
-		    series: {
-		    	name:data.name,
-		        type: 'sunburst',
-		        data: data.data,
-		        center:['50%','55%'],
-		        radius: [0, '75%'],
-		        label: {
-		        	show:true,
-		            rotate: 'radial',
-		            color:'#fff',
-		            fontSize:10
-		        },
-		    }
-		};
+      let data = this.data
+      let option = {
+        title: {
+          text: '三大城市支付方式统计',
+          textStyle: {
+            color: 'rgba(255,255,255,.7)'
+          },
+          left: 'center'
+        },
+        tooltip: {
+          show: true,
+          // formatter:'{a},{b},{c},{d}'s
+        },
+        visualMap: {
+          // type: 'continuous',
+          min: 0,
+          max: 10,
+          show: false,
+          inRange: {
+            color: ["#065aab", "#066eab", "#0682ab", "#0696ab", "#06a0ab"]
+          }
+        },
+        series: {
+          name: data.name,
+          type: 'sunburst',
+          data: data.data,
+          center: ['50%', '55%'],
+          radius: [0, '75%'],
+          label: {
+            show: true,
+            rotate: 'radial',
+            color: '#fff',
+            fontSize: 10
+          },
+        }
+      }
 
 
       this.myChart = echarts.init(this.$refs.sunburst)

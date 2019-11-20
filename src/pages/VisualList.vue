@@ -63,14 +63,17 @@
 
       // 删除图表
       delPage(item) {
-        delVisualPage({"visualPageId": item.visualPageId}).then(res => {
-          if (res.delSuccess) {
-            this.getVisualList()
-            this.$message({
-              message: "删除成功!",
-              type: "success"
-            })
-          }
+        this.$confirm("确认删除？").then(() => {
+          delVisualPage({"visualPageId": item.visualPageId}).then(res => {
+            if (res.delSuccess) {
+              this.getVisualList()
+              this.$message({
+                message: "删除成功!",
+                type: "success"
+              })
+            }
+          })
+        }).catch(() => {
         })
       }
     }

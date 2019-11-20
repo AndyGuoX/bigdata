@@ -4,91 +4,65 @@
       <div class="back-btn">
         <el-button type="primary" icon="el-icon-arrow-left" @click="backToVisList">返回列表</el-button>
       </div>
-      <el-dropdown>
+      <el-dropdown trigger="click">
         <span class="el-dropdown-link">
           2D图表<i class="el-icon-arrow-down el-icon--right"></i>
         </span>
         <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item >
+          <el-dropdown-item>
             <p data-type="charts" data-name="Histogram" draggable="true" @dragstart="dragstart">
-              <i  class="iconfont icon-charts" ></i>柱状图
+              <i class="iconfont iconzhuzhuangtutongjishujuqushibaobiaomianxing"></i>柱状图
             </p>
           </el-dropdown-item>
           <el-dropdown-item>
             <p data-type="charts" data-name="VeLine" draggable="true" @dragstart="dragstart">
-              <i  class="iconfont icon-charts1" ></i>折线图
+              <i class="iconfont icontubiaozhexiantu"></i>折线图
             </p>
           </el-dropdown-item>
           <el-dropdown-item>
             <p data-type="charts" data-name="Pie" draggable="true" @dragstart="dragstart">
-              <i  class="iconfont icon-fendianbaobiao"></i>饼图
+              <i class="iconfont iconbingzhuangtu"></i>饼图
             </p>
           </el-dropdown-item>
           <el-dropdown-item>
             <p data-type="charts" data-name="Radar" draggable="true" @dragstart="dragstart">
-              <i  class="iconfont icon-radar"></i>雷达图
-            </p>  
+              <i class="iconfont iconleidatu"></i>雷达图
+            </p>
           </el-dropdown-item>
           <el-dropdown-item>
             <p data-type="charts" data-name="Scatter" draggable="true" @dragstart="dragstart">
-              <i  class="iconfont"></i>散点图
-            </p>  
+              <i class="iconfont iconzuixinICON---copy"></i>散点图
+            </p>
           </el-dropdown-item>
           <el-dropdown-item>
             <p data-type="charts" data-name="Funnel" draggable="true" @dragstart="dragstart">
-              <i  class="iconfont"></i>漏斗图
-            </p>  
+              <i class="iconfont iconloudoutu"></i>漏斗图
+            </p>
           </el-dropdown-item>
           <el-dropdown-item>
             <p data-type="charts" data-name="LiquidFill" draggable="true" @dragstart="dragstart">
-              <i  class="iconfont"></i>水球图
-            </p>  
+              <i class="iconfont iconwaterpolo"></i>水球图
+            </p>
           </el-dropdown-item>
           <el-dropdown-item>
             <p data-type="charts" data-name="Sunburst" draggable="true" @dragstart="dragstart">
-              <i  class="iconfont"></i>旭日图
-            </p>  
+              <i class="iconfont iconxuritu"></i>旭日图
+            </p>
           </el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
-      <el-dropdown>
+      <el-dropdown trigger="click">
         <span class="el-dropdown-link">
           3D图表<i class="el-icon-arrow-down el-icon--right"></i>
         </span>
         <el-dropdown-menu slot="dropdown">
           <el-dropdown-item>
             <p data-type="charts" data-name="Histogram3D" draggable="true" @dragstart="dragstart">
-              <i  class="iconfont icon-bar_d_chart"></i>3D柱状图
-            </p>  
+              <i class="iconfont icondzhuzhuangtu"></i>3D柱状图
+            </p>
           </el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
-     <!--  <span>2D图表</span>
-      <ul class="charts-select-menu">
-        <li>
-          <i data-type="charts" data-name="Histogram" class="iconfont icon-charts" draggable="true"
-             @dragstart="dragstart"></i>
-        </li>
-        <li>
-          <i data-type="charts" data-name="VeLine" class="iconfont icon-charts1" draggable="true"
-             @dragstart="dragstart"></i>
-        </li>
-        <li>
-          <i data-type="charts" data-name="Pie" class="iconfont icon-fendianbaobiao"
-             draggable="true" @dragstart="dragstart"></i>
-        </li>
-        <li>
-          <i data-type="charts" data-name="Radar" class="iconfont icon-radar"
-             draggable="true" @dragstart="dragstart"></i>
-        </li>
-      </ul> -->
-      <!-- <span>3D图表</span>
-      <ul class="charts-select-menu">
-        <li>
-          <i data-type="charts" data-name="Histogram3D" class="iconfont icon-bar_d_chart"
-             draggable="true" @dragstart="dragstart"></i>
-        </li>
-      </ul> -->
       <div class="save-charts">
         <el-button type="success" round @click="saveCharts">保存图表</el-button>
       </div>
@@ -235,7 +209,7 @@
         this.visualData.visualPageId = visualPageId
         viewVisualPage({"visualPageId": visualPageId}).then(res => {
           if (res.hasPage) {
-            Object.assign(this.visualData, res.visualData.visualPageData);
+            Object.assign(this.visualData, res.visualData.visualPageData)
           } else {
             this.$message({
               message: res.message,
@@ -463,29 +437,32 @@
       },
 
       //拖动左上角
-      tlMove(e){
-        this.leftMove(e);
-        this.topMove(e);
+      tlMove(e) {
+        this.leftMove(e)
+        this.topMove(e)
       },
       //拖动右上角
-      trMove(e){
-        this.rightMove(e);
-        this.topMove(e);
+      trMove(e) {
+        this.rightMove(e)
+        this.topMove(e)
       },
       //拖动左下角
-      blMove(e){
-        this.leftMove(e);
-        this.bottomMove(e);
+      blMove(e) {
+        this.leftMove(e)
+        this.bottomMove(e)
       },
       //拖动右下角
-      brMove(e){
-        this.rightMove(e);
-        this.bottomMove(e);
+      brMove(e) {
+        this.rightMove(e)
+        this.bottomMove(e)
       },
 
       // 删除图表
       delChart(index) {
-        this.visualData.chartsList.splice(index, 1)
+        this.$confirm('确认删除？').then(() => {
+          this.visualData.chartsList.splice(index, 1)
+        }).catch(() => {
+        })
       },
 
       // 修改图表数据
@@ -530,7 +507,7 @@
 </script>
 
 <style scoped lang="scss">
-  @import '../../static/lib/font_hwd63mppy8o/iconfont.css';
+  @import '../../static/lib/icon_font/iconfont.css';
 
   @font-face {
     font-family: 'hyz';
@@ -609,7 +586,7 @@
           position: absolute;
           width: 20px;
           height: 20px;
-          z-index:101;
+          z-index: 101;
         }
 
         span.top-left {
@@ -617,7 +594,7 @@
           left: 0;
           border-top: 2px solid #00c0ff;
           border-left: 2px solid #00c0ff;
-          cursor:nw-resize;
+          cursor: nw-resize;
         }
 
         span.top-right {
@@ -625,7 +602,7 @@
           right: 0;
           border-top: 2px solid #00c0ff;
           border-right: 2px solid #00c0ff;
-          cursor:ne-resize;
+          cursor: ne-resize;
         }
 
         span.bottom-left {
@@ -633,7 +610,7 @@
           left: 0;
           border-bottom: 2px solid #00c0ff;
           border-left: 2px solid #00c0ff;
-          cursor:sw-resize;
+          cursor: sw-resize;
         }
 
         span.bottom-right {
@@ -641,7 +618,7 @@
           right: 0;
           border-bottom: 2px solid #00c0ff;
           border-right: 2px solid #00c0ff;
-          cursor:se-resize;
+          cursor: se-resize;
         }
       }
 
@@ -735,10 +712,15 @@
       top: 0;
       left: 0;
       z-index: 100;
-  
-      .el-dropdown-link{
-        color:#fff;
+
+      .el-dropdown {
+        cursor: pointer;
       }
+
+      .el-dropdown-link {
+        color: #fff;
+      }
+
       .back-btn {
         height: 100%;
         line-height: 65px;
@@ -753,39 +735,6 @@
       span {
         display: inline-block;
         padding-right: 15px;
-      }
-
-      .charts-select-menu {
-        height: 100%;
-        line-height: 65px;
-        display: inline-block;
-        list-style: none;
-        vertical-align: middle;
-        margin-right: 20px;
-
-        &:after {
-          content: '';
-          display: block;
-          clear: both;
-        }
-
-        li {
-          float: left;
-          height: 100%;
-          padding: 0 10px;
-
-          i {
-            font-size: 30px;
-            cursor: pointer;
-            padding: 8px;
-            transition: .3s;
-            border-radius: 3px;
-
-            &:hover {
-              box-shadow: 0 0 4px 4px rgba(255, 255, 255, 0.6);
-            }
-          }
-        }
       }
 
       .save-charts {

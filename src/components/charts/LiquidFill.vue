@@ -1,4 +1,4 @@
- <template>
+<template>
   <div class="liquidFill" ref="liquidFill" :style="`height:${height};width:${width}`"></div>
 </template>
 
@@ -29,31 +29,30 @@
       }
     },
     mounted() {
-      let _this = this;
-      let data = this.data;
+      let data = this.data
       let option = {
-      	title:{
-      		text:data.name,
-      		textStyle:{
-      			color:'rgba(255,255,255,.7)'
-      		}
-      	},
-  		series: [{
-	        type: 'liquidFill',
-	        radius:'80%',
-	        backgroundStyle:{
-	        	color:'rgba(255,255,255,.1)'
-	        },
-	        label:{
-	        	textStyle:{
-	        		fontSize:20
-	        	}
-	        },
-	        outline:{
-	        	show:false,
-	        },
-	        data: data.data
-	    }]
+        title: {
+          text: data.name,
+          textStyle: {
+            color: 'rgba(255,255,255,.7)'
+          }
+        },
+        series: [{
+          type: 'liquidFill',
+          radius: '80%',
+          backgroundStyle: {
+            color: 'rgba(255,255,255,.1)'
+          },
+          label: {
+            textStyle: {
+              fontSize: 20
+            }
+          },
+          outline: {
+            show: false,
+          },
+          data: data.data
+        }]
       }
 
       this.myChart = echarts.init(this.$refs.liquidFill)

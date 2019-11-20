@@ -101,8 +101,6 @@
 </script>
 
 <style scoped lang="scss">
-  @import '../../static/lib/font_hwd63mppy8o/iconfont.css';
-
   @font-face {
     font-family: 'hyz';
     src: url('../../static/lib/HanYiRuiZhiJian/HYRuiZhiJ-2.ttf');

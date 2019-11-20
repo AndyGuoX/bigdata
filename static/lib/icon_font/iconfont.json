@@ -1,0 +1,72 @@
+{
+  "id": "1520073",
+  "name": "big_data",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon",
+  "description": "数据可视化工具",
+  "glyphs": [
+    {
+      "icon_id": "2917704",
+      "name": "雷达图",
+      "font_class": "leidatu",
+      "unicode": "e78a",
+      "unicode_decimal": 59274
+    },
+    {
+      "icon_id": "3220733",
+      "name": "饼状图",
+      "font_class": "bingzhuangtu",
+      "unicode": "e6e8",
+      "unicode_decimal": 59112
+    },
+    {
+      "icon_id": "3851873",
+      "name": "散点图",
+      "font_class": "zuixinICON---copy",
+      "unicode": "e650",
+      "unicode_decimal": 58960
+    },
+    {
+      "icon_id": "6365842",
+      "name": "柱状图 统计 数据 趋势 报表 面性",
+      "font_class": "zhuzhuangtutongjishujuqushibaobiaomianxing",
+      "unicode": "e70e",
+      "unicode_decimal": 59150
+    },
+    {
+      "icon_id": "7578853",
+      "name": "水球图",
+      "font_class": "waterpolo",
+      "unicode": "e737",
+      "unicode_decimal": 59191
+    },
+    {
+      "icon_id": "9940846",
+      "name": "漏斗图",
+      "font_class": "loudoutu",
+      "unicode": "e615",
+      "unicode_decimal": 58901
+    },
+    {
+      "icon_id": "10135869",
+      "name": "图表 折线图",
+      "font_class": "tubiaozhexiantu",
+      "unicode": "e8f3",
+      "unicode_decimal": 59635
+    },
+    {
+      "icon_id": "10396193",
+      "name": "旭日图",
+      "font_class": "xuritu",
+      "unicode": "e658",
+      "unicode_decimal": 58968
+    },
+    {
+      "icon_id": "10752836",
+      "name": "3d柱状图",
+      "font_class": "dzhuzhuangtu",
+      "unicode": "e63f",
+      "unicode_decimal": 58943
+    }
+  ]
+}
