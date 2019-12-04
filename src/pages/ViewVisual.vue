@@ -13,8 +13,7 @@
            :style="`width:${visualData.chartsGlobalSetting.bgWidth}px;
                  height:${visualData.chartsGlobalSetting.bgHeight}px;z-index:0;`">
         <div class="title">
-          <p class="p1">大数据可视化分析</p>
-          <p class="p2">Big data visualization analysis</p>
+          <p class="p1" v-html="visualData.visualPageName"></p>
         </div>
         <div class="map">
           <div class="map1"><img alt="" src="../../static/img/bgvisual/lbx.png"></div>
@@ -194,21 +193,16 @@
 
         .title {
           width: 20%;
-          height: 40px;
           position: absolute;
           top: 20px;
           left: 50%;
           transform: translateX(-50%);
           font-family: 'hyz', serif;
           color: #fff;
-          line-height: 40px;
+          line-height: 60px;
           text-align: center;
           text-shadow: 0 0 15px #59FFF4;
           font-size: 40px;
-
-          .p2 {
-            font-size: 20px;
-          }
         }
 
         .map {

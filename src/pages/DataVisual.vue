@@ -68,7 +68,7 @@
       </div>
     </div>
     <div class="charts-content-wrapper"
-         ref="chartsContent"
+         ref="chartsContentWrapper"
          style="overflow:auto;width:100%;height:auto;">
       <div id="canvas_bg"
            ref="canvWrap"
@@ -79,10 +79,6 @@
       <div class="earth-rotate"
            :style="`width:${visualData.chartsGlobalSetting.bgWidth}px;
                  height:${visualData.chartsGlobalSetting.bgHeight}px;z-index:0;`">
-        <div class="title">
-          <p class="p1">大数据可视化分析</p>
-          <p class="p2">Big data visualization analysis</p>
-        </div>
         <div class="map">
           <div class="map1"><img alt="" src="../../static/img/bgvisual/lbx.png"></div>
           <div class="map2"><img alt="" src="../../static/img/bgvisual/jt.png"></div>
@@ -91,10 +87,14 @@
       </div>
       <div class="charts-content"
            :style="`width:${visualData.chartsGlobalSetting.bgWidth}px;
-                 height:${visualData.chartsGlobalSetting.bgHeight}px;
-                 position:relative;z-index:2;`"
+                  height:${visualData.chartsGlobalSetting.bgHeight}px;
+                  background-size: ${visualData.chartsGlobalSetting.bgWidth/visualData.chartsGlobalSetting.gridNumW}px ${visualData.chartsGlobalSetting.bgHeight/visualData.chartsGlobalSetting.gridNumH}px;`"
+           ref="chartsContent"
            @drop="drop"
            @dragover="dragover">
+        <div class="title">
+          <p class="p1" ref="title" contenteditable="true" v-html="visualData.visualPageName"></p>
+        </div>
         <div class="charts-wrapper"
              v-for="(item,index) in visualData.chartsList" :key="item.id"
              :style="`position: absolute;top:${item.top}px;
@@ -145,6 +145,7 @@
 </template>
 
 <script>
+  import screenShot from 'html2canvas'
   import Histogram from '@/components/charts/Histogram'
   import VeLine from '@/components/charts/VeLine'
   import Pie from '@/components/charts/Pie'
@@ -188,7 +189,7 @@
         visualData: {
           visualPageId: "",
           visualPageName: "大数据可视化分析",
-          visualPageImg: "http://localhost:3000/bigdata/visual_img/big_data_demo.jpg",
+          visualPageImgBase64: "",
           chartsList: [], // 存放图表数据
           chartsGlobalSetting: { // 整个图表的全局参数
             "bgWidth": 1920,
@@ -197,7 +198,8 @@
             "minChartHeight": 0,
             "chartWidth": 0,
             "chartHeight": 0,
-            "gridNum": 40
+            "gridNumW": 60,
+            "gridNumH": 60
           },
         }
       }
@@ -235,8 +237,8 @@
       // 绑定在可放置的元素上
       drop(event) {
         let _s = this.visualData.chartsGlobalSetting
-        let _n_w = _s.bgWidth / _s.gridNum
-        let _n_h = _s.bgHeight / _s.gridNum
+        let _n_w = _s.bgWidth / _s.gridNumW
+        let _n_h = _s.bgHeight / _s.gridNumH
         const path = event.path || (event.composedPath && event.composedPath())// 兼容火狐和Safari
         let type = event.dataTransfer.getData('type')
         let name = event.dataTransfer.getData('name')
@@ -289,13 +291,14 @@
         this.currentY = event.clientY // 记录当前鼠标纵坐标
         this.currentDivX = parseInt(this.currentCanvasDiv.style.left)
         this.currentDivY = parseInt(this.currentCanvasDiv.style.top)
+        this.$refs.chartsContent.classList.add("grid-show")
       },
 
       // div移动鼠标移动事件
       mouseMove(event) {
         let _s = this.visualData.chartsGlobalSetting
-        let _n_w = _s.bgWidth / _s.gridNum
-        let _n_h = _s.bgHeight / _s.gridNum
+        let _n_w = _s.bgWidth / _s.gridNumW
+        let _n_h = _s.bgHeight / _s.gridNumH
         let _X = this.currentDivX + Math.floor((event.clientX - this.currentX) / _n_w) * _n_w
         let _Y = this.currentDivY + Math.floor((event.clientY - this.currentY) / _n_h) * _n_h
         // 不允许拖拽超出画布
@@ -324,6 +327,7 @@
         this.mouseoutFlag = true
         document.removeEventListener("mousemove", this.mouseMove)
         document.removeEventListener("mouseup", this.mouseUp)
+        this.$refs.chartsContent.classList.remove("grid-show")
       },
 
       // 鼠标悬停
@@ -350,6 +354,7 @@
         this.currentDivY = parseInt(this.currentCanvasDiv.style.top)
         document.addEventListener("mousemove", eval('this.' + this.currentBorder + 'Move'))
         document.addEventListener("mouseup", this.c_mouseUp)
+        this.$refs.chartsContent.classList.add("grid-show")
         // this.currentItem.virtualBorderColor = "#f5a623"
       },
 
@@ -357,13 +362,14 @@
       c_mouseUp() {
         document.removeEventListener("mousemove", eval('this.' + this.currentBorder + 'Move'))
         document.removeEventListener("mouseup", this.c_mouseUp)
+        this.$refs.chartsContent.classList.remove("grid-show")
         // this.currentItem.virtualBorderColor = "transparent"
       },
 
       // 拖动左边界
       leftMove(event) {
         let _s = this.visualData.chartsGlobalSetting
-        let _n_w = _s.bgWidth / _s.gridNum
+        let _n_w = _s.bgWidth / _s.gridNumW
         let _X = event.pageX
         if (_X <= 0) {
           _X = 0
@@ -383,7 +389,7 @@
       // 拖动右边界
       rightMove(event) {
         let _s = this.visualData.chartsGlobalSetting
-        let _n_w = _s.bgWidth / _s.gridNum
+        let _n_w = _s.bgWidth / _s.gridNumW
         let _X = event.pageX
         if (_X >= _s.bgWidth) {
           _X = _s.bgWidth
@@ -401,7 +407,7 @@
       // 拖动下边界
       bottomMove(event) {
         let _s = this.visualData.chartsGlobalSetting
-        let _n_h = _s.bgHeight / _s.gridNum
+        let _n_h = _s.bgHeight / _s.gridNumH
         let _Y = event.pageY
         if (_Y >= _s.bgHeight + 65) {
           _Y = _s.bgHeight + 65
@@ -419,7 +425,7 @@
       // 拖动上边界
       topMove(event) {
         let _s = this.visualData.chartsGlobalSetting
-        let _n_h = _s.bgHeight / _s.gridNum
+        let _n_h = _s.bgHeight / _s.gridNumH
         let _Y = event.pageY
         if (_Y <= 65) {
           _Y = 65
@@ -475,13 +481,18 @@
 
       // 保存图表
       saveCharts() {
-        saveVisualPage(this.visualData).then(res => {
-          if (res.saveSuccess) {
-            this.$message({
-              message: "保存成功",
-              type: "success",
-            })
-          }
+        let chartsContentWrapper = this.$refs.chartsContentWrapper
+        this.visualData.visualPageName = this.$refs.title.innerHTML
+        screenShot(chartsContentWrapper).then(canvas => {
+          this.visualData.visualPageImgBase64 = canvas.toDataURL("image/png")
+          saveVisualPage(this.visualData).then(res => {
+            if (res.saveSuccess) {
+              this.$message({
+                message: "保存成功",
+                type: "success",
+              })
+            }
+          })
         })
       },
 
@@ -495,12 +506,12 @@
       // 计算图表的最小宽度和高度
       setChartWH() {
         let _s = this.visualData.chartsGlobalSetting
-        let _w = _s.bgWidth / _s.gridNum
-        let _h = _s.bgHeight / _s.gridNum
-        _s.minChartWidth = _w * 6
-        _s.minChartHeight = _h * 6
-        _s.chartWidth = _w * 10
-        _s.chartHeight = _h * 10
+        let _w = _s.bgWidth / _s.gridNumW
+        let _h = _s.bgHeight / _s.gridNumH
+        _s.minChartWidth = _w * 8
+        _s.minChartHeight = _h * 8
+        _s.chartWidth = _w * 16
+        _s.chartHeight = _h * 16
       },
     }
   }
@@ -545,6 +556,30 @@
 
     .charts-content-wrapper {
       position: relative;
+
+      .grid-show {
+        background-image: linear-gradient(rgba(182, 219, 242, 0.2) 1px, transparent 0),
+        linear-gradient(90deg, rgba(182, 219, 242, .2) 1px, transparent 0);
+      }
+
+      .charts-content {
+        position: relative;
+        z-index: 2;
+
+        .title {
+          width: 20%;
+          position: absolute;
+          top: 20px;
+          left: 50%;
+          transform: translateX(-50%);
+          font-family: 'hyz', serif;
+          color: #fff;
+          line-height: 60px;
+          text-align: center;
+          text-shadow: 0 0 15px #59FFF4;
+          font-size: 40px;
+        }
+      }
 
       .charts-wrapper {
         border: 1px solid rgba(25, 186, 139, .17);
@@ -631,25 +666,6 @@
       .earth-rotate {
         background: url("../../static/img/bgvisual/bg.png") no-repeat top center;
         background-size: cover;
-
-        .title {
-          width: 20%;
-          height: 40px;
-          position: absolute;
-          top: 20px;
-          left: 50%;
-          transform: translateX(-50%);
-          font-family: 'hyz', serif;
-          color: #fff;
-          line-height: 40px;
-          text-align: center;
-          text-shadow: 0 0 15px #59FFF4;
-          font-size: 40px;
-
-          .p2 {
-            font-size: 20px;
-          }
-        }
 
         .map {
           position: absolute;

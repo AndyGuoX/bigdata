@@ -2,6 +2,7 @@
   <div class="visual-list">
     <div class="visual-box" v-for="(item) in visualList" :key="item.visualPageId">
       <img class="visual-img" :src="item.visualPageImg" alt="">
+      <p class="visual-name">{{item.visualPageName}}</p>
       <ul class="visual-toolbar">
         <li @click="viewPage(item)">查看<i class="el-icon-view"></i></li>
         <li @click="changePage(item)">修改<i class="el-icon-edit-outline"></i></li>
@@ -134,9 +135,20 @@
       &:hover {
         transform: translateY(-10px);
 
-        .visual-toolbar {
+        .visual-toolbar, .visual-name {
           opacity: 1;
         }
+      }
+
+      .visual-name {
+        width: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        background-color: rgba(255, 255, 255, 0.9);
+        padding: 5px;
+        opacity: 0;
+        transition: .3s;
       }
 
       .visual-toolbar {

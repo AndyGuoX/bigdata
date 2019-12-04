@@ -8,6 +8,8 @@ const VisualPage = require('../models/visualPage') // 可视化页面表
 const createToken = require('../token/createToken')
 const decodeToken = require('../token/decodeToken')
 const async = require('async')
+const fs = require('fs') // 文件操作
+const {imgSavePath, imgGetAddr} = require('../constant/constant')
 
 /* 登录接口 */
 router.post('/login', (req, res) => {
@@ -99,6 +101,9 @@ router.post('/saveVisualPage', (req, res) => {
   }
   let userId = mongoose.Types.ObjectId(decodeToken(req).userid)
   let visualData = reqJson
+  let base64Url = visualData.visualPageImgBase64.replace(/^data:image\/png;base64,/, "") // 截图的base64编码
+  let binaryData = new Buffer(base64Url, 'base64').toString('binary')
+  let imgUrl = `${imgSavePath}/${visualData.visualPageId}.png`
   // 同时进行多个异步操作,全部完成时回调,回调结果为多个异步返回的结果的对象集
   async.parallel(
     {
@@ -116,7 +121,7 @@ router.post('/saveVisualPage', (req, res) => {
                     "visualPage": {
                       "visualPageId": visualData.visualPageId,
                       "visualPageName": visualData.visualPageName,
-                      "visualPageImg": visualData.visualPageImg
+                      "visualPageImg": `${imgGetAddr}/${visualData.visualPageId}.png`
                     }
                   }
                 },
@@ -130,7 +135,7 @@ router.post('/saveVisualPage', (req, res) => {
                 {
                   $set: {
                     "visualPage.$.visualPageName": visualData.visualPageName,
-                    "visualPage.$.visualPageImg": visualData.visualPageImg
+                    "visualPage.$.visualPageImg": `${imgGetAddr}/${visualData.visualPageId}.png`
                   }
                 },
                 function (err, docs) {
@@ -154,6 +159,11 @@ router.post('/saveVisualPage', (req, res) => {
           function (err, docs) {
             callback(err, docs)
           })
+      },
+      saveImg: function (callback) {
+        fs.writeFile(imgUrl, binaryData, 'binary', function (err) {
+          callback(err)
+        })
       }
     },
     function (e, r) {
@@ -199,6 +209,7 @@ router.post('/delVisualPage', (req, res) => {
   }
   let userId = mongoose.Types.ObjectId(decodeToken(req).userid)
   let visualPageId = reqJson.visualPageId
+  let imgDeletePath = `${imgSavePath}/${visualPageId}.png`
   async.parallel({
     user: function (callback) {
       Users.updateOne(
@@ -220,6 +231,11 @@ router.post('/delVisualPage', (req, res) => {
           callback(err, docs)
         }
       )
+    },
+    deleteImg: function (callback) {
+      fs.unlink(imgDeletePath, function (err) {
+        callback(err)
+      })
     }
   }, function (err, docs) {
     if (err) console.log(err + docs)

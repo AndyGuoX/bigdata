@@ -27,15 +27,15 @@ app.set('view engine', 'html')
 
 //下一组app.use()调用将中间件库添加进请求处理链。
 app.use(logger('dev'))
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({extended: false}))
+app.use(bodyParser.json({limit: '10mb'}))
+app.use(bodyParser.urlencoded({limit: '10mb', extended: false, parameterLimit: 10000}))
 app.use(cookieParser())
 //除了之前导入的第三方库之外，我们还是用express.static中间件将
 //项目根目录下所有静态文件托管至/public目录
 app.use(express.static(path.join(__dirname, 'public')))
 
 // 配置虚拟路径 -- 映射到服务端文件夹
-app.use('/bigdata', express.static("D://bigdata"))
+app.use('/thumbnail', express.static("/Users/andyguo/Pictures/bigdata/visual_img"))
 
 //设置跨域访问
 app.all('*', function (req, res, next) {

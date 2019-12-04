@@ -6,5 +6,7 @@ module.exports = {
   //   let md5 = crypto.createHash('md5');
   //   return md5.update(pwd).digest('hex');
   // },
-  secretKey: 'bigdata_jwttoken'
+  secretKey: 'bigdata_jwttoken',
+  imgSavePath: '/Users/andyguo/Pictures/bigdata/visual_img',
+  imgGetAddr: 'http://localhost:3000/thumbnail'
 };
