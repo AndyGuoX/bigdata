@@ -79,7 +79,7 @@
   .header-wrapper {
     width: 100%;
     height: 85px;
-    background-color: #567086;
+    background-color: #59738a;
     padding-left: 30px;
 
     .header-menu {
@@ -96,7 +96,7 @@
       }
 
       .menu-active {
-        background-color: #f5a623;
+        background-color: #f4a727;
         color: #fff !important;
       }
 
@@ -111,7 +111,7 @@
         transition: all 0.3s ease;
 
         &:hover {
-          color: #f5a623;
+          color: #f4a727;
         }
       }
 
